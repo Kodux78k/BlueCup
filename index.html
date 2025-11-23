@@ -9,7 +9,16 @@
   <meta name="theme-color" content="#050510" id="metaThemeColor"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <!-- Manifest do PWA -->
+  <!-- Se o arquivo estiver na raiz, deixa só "manifest.webmanifest" -->
+  <link rel="manifest" href="./manifest.webmanifest">
 
+  <!-- Ícone principal (favicon / atalho) -->
+  <!-- Aqui entra teu ícone 192x192 -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+
+  <!-- Ícone para iOS (pode ser 180x180, mas 192 também funciona bem) -->
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <style>
     /* MOBILE-FIRST VERTICAL HARD-LOCK */
     :root{
