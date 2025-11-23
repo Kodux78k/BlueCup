@@ -5,27 +5,16 @@
   <title>BlueCup • Infodose Local Agent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 
-<!-- PWA no iOS (modo web app) -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="BlueCup">
+  <!-- PWA basics (opcional) -->
+  <meta name="theme-color" content="#050510" id="metaThemeColor"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <link rel="manifest" href="./manifest.webmanifest"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png"/>
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png"/>
 
-  <!-- Manifest do PWA -->
-  <!-- Se o arquivo estiver na raiz, deixa só "manifest.webmanifest" -->
-  <link rel="manifest" href="./manifest.webmanifest">
 
-  <!-- Ícone principal (favicon / atalho) -->
-  <!-- Aqui entra teu ícone 192x192 -->
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-
-  <!-- Ícone para iOS (pode ser 180x180, mas 192 também funciona bem) -->
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
-
-  <!-- (Opcional) Ícone maior, se tiver 512x512 -->
-  <!-- <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png"> -->
-
-  <!-- (Opcional) Descrição pro SEO -->
-  <meta name="description" content="BlueCup • Hub Infodose rodando como PWA, sempre único, sempre seu.">
   <style>
     /* MOBILE-FIRST VERTICAL HARD-LOCK */
     :root{
@@ -264,25 +253,46 @@
 /* ====================================================================== */
 /* RENDER RICO + BOTÕES COPY/LISTEN (override BlueCup)                     */
 /* ====================================================================== */
+
 .chat-message{
   position:relative;
-  padding:1rem 1.1rem 1.3rem;
-  background:rgba(27,228,255,.08);
-  border:1px solid rgba(27,228,255,.16);
-  border-radius:14px;
+  padding:1rem 1.1rem 1.25rem;
+  border-radius:16px;
   line-height:1.6;
   color:var(--txt);
   font-size:15px;
   white-space:normal;
+  background:rgba(5,5,16,.92);
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.75),
+    0 0 18px rgba(0,216,216,.18);
+  backdrop-filter:blur(10px);
+}
+.chat-message + .chat-message{
+  margin-top:.75rem;
 }
 .chat-message.you{
-  background:rgba(92,255,157,.10);
-  border-color:var(--wood-soft);
-  box-shadow:0 0 0 1px rgba(92,255,157,.12) inset;
+  background:linear-gradient(135deg, rgba(92,255,157,.18), rgba(5,5,16,.96));
+  border-color:rgba(92,255,157,.65);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.9),
+    0 0 22px rgba(92,255,157,.35);
+}
+.chat-message.bot{
+  background:linear-gradient(135deg,
+    var(--kob-voice-bg-soft, rgba(27,228,255,.10)),
+    rgba(5,5,16,.96)
+  );
+  border-color:rgba(27,228,255,.42);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.9),
+    var(--kob-voice-glow, 0 0 24px rgba(0,216,216,.45));
 }
 .chat-message.sys{
   background:transparent;
   border:none;
+  box-shadow:none;
   font-size:12px;
   color:var(--muted);
   padding:2px 0;
@@ -353,25 +363,58 @@
 /* ====================================================================== */
 /* Voice blocks (Gerardo MD)                                               */
 /* ====================================================================== */
+
 .voice-block{
-  margin:.45rem 0;
-  padding:.5rem .7rem;
-  border-left:3px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.02);
-  border-radius:8px;
+  margin:.55rem 0;
+  padding:.55rem .8rem;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.42);
+  box-shadow:0 0 0 1px rgba(0,0,0,.6);
 }
 .voice-block .voice-tag{
-  font-weight:900; letter-spacing:.08em; font-size:11px; text-transform:uppercase;
-  opacity:.9; margin-bottom:.25rem; display:block;
-  color:var(--accent,#1be4ff);
+  font-weight:900;
+  letter-spacing:.08em;
+  font-size:11px;
+  text-transform:uppercase;
+  opacity:.85;
+  margin-bottom:.25rem;
+  display:block;
+  color:var(--kob-voice-primary, var(--accent,#1be4ff));
 }
 .voice-block.speaking{
-  border-left-color:var(--wood,#5cff9d);
-  box-shadow:0 0 0 1px rgba(92,255,157,.18) inset;
-  background:rgba(92,255,157,.04);
+  border-color:var(--kob-voice-primary,#5cff9d);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.12),
+    var(--kob-voice-glow, 0 0 18px rgba(92,255,157,.45));
+  background:var(--kob-voice-bg-soft, rgba(92,255,157,.08));
 }
 
-
+/* Blocos semânticos: recompensa / curiosidade / antecipação */
+.voice-block[data-voice^="Recompensa"],
+.voice-block[data-voice^="RECOMPENSA"]{
+  border-color:rgba(255,210,128,.85);
+  box-shadow:
+    0 0 0 1px rgba(255,210,128,.55),
+    0 0 24px rgba(255,210,128,.55);
+  background:rgba(50,25,0,.85);
+}
+.voice-block[data-voice^="Curiosidade"],
+.voice-block[data-voice^="CURIOSIDADE"]{
+  border-color:rgba(160,122,255,.9);
+  box-shadow:
+    0 0 0 1px rgba(160,122,255,.55),
+    0 0 24px rgba(160,122,255,.65);
+  background:rgba(20,10,60,.88);
+}
+.voice-block[data-voice^="Antecip"],
+.voice-block[data-voice^="ANTECIP"]{
+  border-color:rgba(92,255,157,.9);
+  box-shadow:
+    0 0 0 1px rgba(92,255,157,.55),
+    0 0 24px rgba(92,255,157,.65);
+  background:rgba(5,40,25,.9);
+}
 /* ---- Arch Voz Theme ---- */
 
 :root{
@@ -725,22 +768,82 @@ table.tabelista tbody tr:hover td{ background:rgba(27,228,255,.06); }
   background:rgba(27,228,255,.08);
 }
 
+
 .fab-devpanel{
   position:fixed; right:14px; bottom:14px;
-  z-index:79; border-radius:999px; width:56px; height:56px;
+  z-index:79;
+  border-radius:999px;
+  width:56px; height:56px;
   display:flex; align-items:center; justify-content:center;
-  border:1px solid rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.16);
   background:
     radial-gradient(120px 120px at 30% 20%, rgba(255,0,255,.35), transparent 55%),
     radial-gradient(120px 120px at 70% 20%, rgba(0,255,255,.35), transparent 55%),
-    rgba(0,0,0,.6);
-  box-shadow:0 10px 30px rgba(0,0,0,.8);
-  color:inherit; font-size:20px;
+    rgba(0,0,0,.82);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.9),
+    0 0 26px rgba(240,0,255,.45),
+    0 0 26px rgba(0,255,255,.45);
+  color:inherit;
+  font-size:22px;
   min-width:44px; min-height:44px;
   padding-bottom: env(safe-area-inset-bottom);
+  backdrop-filter: blur(10px);
+  animation: orbPulse 3.8s ease-in-out infinite;
+}
+
+@keyframes orbPulse{
+  0%{
+    transform:translate3d(0,0,0) scale(1);
+    box-shadow:
+      0 10px 26px rgba(0,0,0,.9),
+      0 0 16px rgba(240,0,255,.45),
+      0 0 18px rgba(0,255,255,.45);
+  }
+  50%{
+    transform:translate3d(0,-2px,0) scale(1.04);
+    box-shadow:
+      0 14px 32px rgba(0,0,0,.9),
+      0 0 26px rgba(240,0,255,.75),
+      0 0 32px rgba(0,255,255,.75);
+  }
+  100%{
+    transform:translate3d(0,0,0) scale(1);
+    box-shadow:
+      0 10px 26px rgba(0,0,0,.9),
+      0 0 16px rgba(240,0,255,.45),
+      0 0 18px rgba(0,255,255,.45);
+  }
 }
 
 
+
+.fab-devpanel .fab-orb{
+  width:28px;
+  height:28px;
+  display:block;
+}
+.fab-orb .orb-core{
+  opacity:0.98;
+}
+.fab-orb .orb-ring{
+  opacity:0.9;
+}
+.fab-orb .orb-satellite{
+  fill:#ffffff;
+  opacity:0.9;
+  transform-origin:32px 32px;
+  animation: orbSpin 6s linear infinite;
+}
+
+@keyframes orbSpin{
+  0%{
+    transform:rotate(0deg) translate3d(0,0,0);
+  }
+  100%{
+    transform:rotate(360deg) translate3d(0,0,0);
+  }
+}
 /* ====================================================================== */
 /* DUAL BRAIN UI                                                         */
 /* ====================================================================== */
@@ -1013,10 +1116,40 @@ input[type="range"]::-moz-range-thumb{
 .devpanel-overlay{ pointer-events:none; opacity:0; transition:opacity .18s ease; }
 .devpanel-overlay.show{ pointer-events:auto; opacity:1; }
 
+
+/* ===== PATCH • BG SVG vivo por arquétipo ===== */
+#bgLayer{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background:#000;
+  overflow:hidden;
+}
+#bgLayer svg{
+  width:100%;
+  height:100%;
+  display:block;
+  transform: scale(1.05);
+  filter: saturate(1.05) contrast(1.05);
+  animation: bgFloat 10s ease-in-out infinite;
+}
+body.ai-active #bgLayer svg{
+  animation-duration: 4.2s;
+  filter: saturate(1.2) contrast(1.15);
+}
+@keyframes bgFloat{
+  0%{ transform: scale(1.03) translateY(0px); }
+  50%{ transform: scale(1.08) translateY(-8px); }
+  100%{ transform: scale(1.03) translateY(0px); }
+}
+
 </style>
 </head>
 
 <body>
+<!-- PATCH • BG SVG vivo -->
+<div id="bgLayer" aria-hidden="true"></div>
+
   <header>
     <div class="headrow">
       <div class="brand">
@@ -1084,6 +1217,7 @@ input[type="range"]::-moz-range-thumb{
           <button id="localUploadBtn" class="appBtn primary" type="button">Upload HTML</button>
           <button id="localNewBtn" class="appBtn" type="button">Novo Local</button>
           <button id="localExportBtn" class="appBtn" type="button">Exportar Locais</button>
+          <button id="localPublishBtn" class="appBtn" type="button">Publish apps.json</button>
           <button id="localImportBtn" class="appBtn" type="button">Importar Locais</button>
         </div>
         <input id="localUploadInput" type="file" accept=".html,text/html" multiple hidden />
@@ -1682,6 +1816,9 @@ function addMsg(role, text){
   if(role==="bot"){
     const rich = renderRich(text);
     el.innerHTML = rich;
+    // texto bruto (MD) para stacks / Livro Vivo
+    el.dataset.raw = text;
+    // texto plano (sem HTML) para copiar / TTS fallback
     el.dataset.plain = stripHtml(rich);
 
     // botões
@@ -1790,7 +1927,9 @@ ttsBtn.onclick = ()=>{
 stackBtn.onclick = ()=>{
   const last = [...chatBox.querySelectorAll(".chat-message.bot")].pop();
   if(!last) return;
-  openNewStack(last.textContent);
+  // prioriza o texto bruto (MD) usado no chat
+  const seed = last.dataset.raw || last.dataset.plain || last.textContent;
+  openNewStack(seed);
 };
 
 clearBtn.onclick = ()=>{
@@ -2757,6 +2896,42 @@ bootApps();
       const m = String(src).match(/<title[^>]*>([\s\S]*?)<\/title>/i);
       if(m && m[1]) return m[1].trim().slice(0,80);
     }catch(e){}
+
+  function autoMetaFromHtml(src, fallbackTitle){
+    try{
+      const doc = new DOMParser().parseFromString(String(src||""), "text/html");
+      const getMeta = (sel)=> doc.querySelector(sel)?.getAttribute("content")?.trim();
+      const getLink = (rel)=> doc.querySelector(`link[rel="${rel}"], link[rel~="${rel}"]`)?.getAttribute("href")?.trim();
+
+      const title =
+        doc.querySelector("title")?.textContent?.trim()
+        || getMeta('meta[property="og:title"]')
+        || getMeta('meta[name="twitter:title"]')
+        || fallbackTitle
+        || "App Local";
+
+      const desc =
+        getMeta('meta[name="description"]')
+        || getMeta('meta[property="og:description"]')
+        || getMeta('meta[name="twitter:description"]')
+        || doc.querySelector("h1")?.textContent?.trim()
+        || doc.querySelector("p")?.textContent?.trim()
+        || "HTML local";
+
+      let icon =
+        getLink("icon")
+        || getLink("shortcut icon")
+        || getLink("apple-touch-icon")
+        || getMeta('meta[property="og:image"]')
+        || "";
+
+      if(!/^(https?:|data:)/i.test(icon)) icon = "icons/icon-192.png";
+
+      return { title:title.slice(0,80), desc:desc.slice(0,140), icon };
+    }catch(e){
+      return { title:fallbackTitle||"App Local", desc:"HTML local", icon:"icons/icon-192.png" };
+    }
+  }
     return fallback;
   }
 
@@ -2863,7 +3038,8 @@ bootApps();
       const title = extractTitleFromHtml(html, base);
       const key = (window.makeSafeKey ? makeSafeKey(title) : base.toLowerCase().replace(/[^a-z0-9]+/g,"-"));
       if(raw[key] && !confirm("Sobrescrever '"+key+"'?")) continue;
-      raw[key] = { title, desc:"", icon:"", html };
+      const meta = autoMetaFromHtml(html, title);
+      raw[key] = { title: meta.title || title, desc: meta.desc||"", icon: meta.icon||"", html };
     }
     saveFiles(raw);
     uploadInp.value="";
@@ -2900,7 +3076,8 @@ bootApps();
   </div>
 </body>
 </html>`;
-    raw[key] = { title, desc:"", icon:"", html };
+    const meta = autoMetaFromHtml(html, title);
+      raw[key] = { title: meta.title || title, desc: meta.desc||"", icon: meta.icon||"", html };
     saveFiles(raw);
     render();
     try{ renderApps(loadAppsCache()||DEFAULT_APPS); }catch(err){}
@@ -2913,6 +3090,46 @@ bootApps();
     downloadJson("local_apps.json", raw);
   });
 
+  
+  const publishBtn = document.getElementById("localPublishBtn");
+
+  publishBtn?.addEventListener("click", async ()=>{
+    const parents = listLocal();
+    const appsJson = parents.map(p=>({
+      key: p.key,
+      title: p.title || p.key,
+      desc: p.desc || "",
+      icon: p.icon || "icons/icon-192.png",
+      url: `./apps/${p.key}.html`
+    }));
+
+    // download file
+    const blob = new Blob([JSON.stringify(appsJson,null,2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "apps.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    // optional remote sync
+    try{
+      if(window.syncSolarAppsJson){
+        await window.syncSolarAppsJson(appsJson);
+        addSys?.("Nos.S°lar Sync ✅");
+      }else if(window.NOS_SOLAR_SYNC_URL){
+        await fetch(window.NOS_SOLAR_SYNC_URL, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(appsJson)
+        });
+        addSys?.("Nos.S°lar Sync POST ✅");
+      }else{
+        addSys?.("apps.json gerado. Suba na raiz do Hub remoto.");
+      }
+    }catch(e){
+      addSys?.("apps.json gerado (sync remoto falhou).");
+    }
+  });
   importBtn?.addEventListener("click", ()=> importInp?.click());
   importInp?.addEventListener("change", async ()=>{
     const f = importInp.files?.[0];
@@ -2940,7 +3157,26 @@ bootApps();
 <!-- =================================================================== -->
 <!-- DEV PANEL MODAL                                                     -->
 <!-- =================================================================== -->
-<button class="fab-devpanel" id="devpanelOpenBtn" title="DevPanel">⚙</button>
+<button class="fab-devpanel" id="devpanelOpenBtn" title="DevPanel" aria-label="DevPanel">
+  <svg class="fab-orb" viewBox="0 0 64 64" aria-hidden="true">
+    <defs>
+      <radialGradient id="fabOrbCore" cx="50%" cy="35%" r="60%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+        <stop offset="35%" stop-color="#ff00ff" stop-opacity=".95"/>
+        <stop offset="70%" stop-color="#00ffff" stop-opacity=".85"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="fabOrbRing" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ff00ff"/>
+        <stop offset="50%" stop-color="#1be4ff"/>
+        <stop offset="100%" stop-color="#5cff9d"/>
+      </linearGradient>
+    </defs>
+    <circle class="orb-core" cx="32" cy="32" r="18" fill="url(#fabOrbCore)"/>
+    <circle class="orb-ring" cx="32" cy="32" r="23" fill="none" stroke="url(#fabOrbRing)" stroke-width="1.5"/>
+    <circle class="orb-satellite" cx="48" cy="20" r="3"/>
+  </svg>
+</button>
 
 <div class="devpanel-overlay" id="devpanelOverlay" aria-hidden="true">
   <div class="devpanel" role="dialog" aria-modal="true">
@@ -3718,5 +3954,1327 @@ bootApps();
 
 </script>
 
+
+<!-- =========================================================
+     📖 Livro Vivo Stacks — Modal Editor + Viewer (NEXT Patch)
+     - openNewStack / openStack sem prompt()
+     - Abrir stack em estilo Livro Vivo no viewer
+     - Editor com preview MD
+     ========================================================= -->
+<style>
+/* MOBILE-FIRST VERTICAL HARD-LOCK */
+
+/* Modal Stacks */
+.lvStackModal{
+  position:fixed; inset:0; z-index:80;
+  display:none; align-items:center; justify-content:center;
+  background:rgba(2,3,10,.96);
+  padding:10px;
+}
+.lvStackModal.show{ display:flex; }
+.lvStackPanel{
+  width:100%; max-width:1100px; height:92vh;
+  background:#050510;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.lvStackHeader{
+  display:flex; align-items:center; gap:8px; justify-content:space-between;
+  padding:10px 12px;
+  background:
+    radial-gradient(140% 120% at 0% 0%, rgba(240,0,255,.10), transparent 60%),
+    radial-gradient(140% 120% at 100% 100%, rgba(0,255,255,.10), transparent 60%),
+    rgba(5,5,16,.98);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.lvStackHeader .title{
+  font-weight:900; letter-spacing:.08em; font-size:.95rem; text-transform:uppercase;
+}
+.lvStackHeader .actions{ display:flex; gap:8px; }
+.lvStackHeader button{
+  min-height:44px; padding:.45rem .8rem; border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.07);
+  color:#e8ecf6; font-weight:800; cursor:pointer;
+}
+.lvStackBody{
+  flex:1; display:flex; flex-direction:column; gap:8px; padding:10px;
+  overflow:auto;
+}
+.lvStackInputs{
+  display:flex; flex-direction:column; gap:8px;
+}
+.lvStackInputs input{
+  width:100%; min-height:44px; padding:10px 12px;
+  border-radius:12px; border:1px solid rgba(255,255,255,.10);
+  background:#02020a; color:#e8ecf6; font-weight:800; letter-spacing:.02em;
+}
+.lvStackInputs textarea{
+  width:100%; min-height:36vh; resize:vertical;
+  padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.10);
+  background:#02020a; color:#e8ecf6;
+  font-family: ui-monospace, Menlo, Consolas, monospace; font-size:.92rem; line-height:1.55;
+}
+.lvStackPreview{
+  border:1px solid rgba(255,255,255,.10); border-radius:12px;
+  background:#09091a; padding:10px 12px; overflow:auto; max-height:34vh;
+}
+.lvStackPreview h1,h2,h3{ margin:.8rem 0 .4rem }
+.lvStackPreview p{ line-height:1.6; opacity:.85 }
+.lvStackPreview pre{ background:#02020a; padding:9px; border-radius:8px; overflow:auto }
+.lvStackPreview blockquote{ border-left:3px solid rgba(0,255,255,.6); padding:.35rem .6rem; background:rgba(0,255,255,.05); border-radius:8px }
+</style>
+
+<div class="lvStackModal" id="lvStackModal">
+  <div class="lvStackPanel">
+    <div class="lvStackHeader">
+      <div class="title" id="lvStackHeaderTitle">STACK</div>
+      <div class="actions">
+        <button id="lvStackOpen">Abrir Livro Vivo</button>
+        <button id="lvStackSave">Salvar</button>
+        <button id="lvStackCancel">Fechar</button>
+      </div>
+    </div>
+    <div class="lvStackBody">
+      <div class="lvStackInputs">
+        <input id="lvStackTitle" placeholder="Título da stack" />
+        <textarea id="lvStackContent" placeholder="Conteúdo em Markdown..."></textarea>
+      </div>
+      <div class="tiny" style="opacity:.75;margin-top:2px">Preview (Livro Vivo)</div>
+      <div class="lvStackPreview" id="lvStackPreview"></div>
+      <div class="tiny" style="opacity:.55;margin-top:8px;text-align:center">Legendas pela comunidade Amara.org</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* MOBILE-FIRST VERTICAL HARD-LOCK */
+/* =========================================================
+   Livro Vivo Stacks — Editor + Viewer
+   ========================================================= */
+(function(){
+  const modal = document.getElementById("lvStackModal");
+  const headerT = document.getElementById("lvStackHeaderTitle");
+  const titleI = document.getElementById("lvStackTitle");
+  const contentA = document.getElementById("lvStackContent");
+  const preview = document.getElementById("lvStackPreview");
+  const btnOpen = document.getElementById("lvStackOpen");
+  const btnSave = document.getElementById("lvStackSave");
+  const btnCancel = document.getElementById("lvStackCancel");
+
+  let editingIndex = null; // null -> new
+  let currentBlobUrl = null;
+
+  function mdToHtml(md){
+    let out = String(md||"")
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    out = out.replace(/```([\\s\\S]*?)```/g,(m,code)=>`<pre><code>${code}</code></pre>`);
+    out = out.replace(/^######\\s?(.*)$/gm,"<h6>$1</h6>")
+             .replace(/^#####\\s?(.*)$/gm,"<h5>$1</h5>")
+             .replace(/^####\\s?(.*)$/gm,"<h4>$1</h4>")
+             .replace(/^###\\s?(.*)$/gm,"<h3>$1</h3>")
+             .replace(/^##\\s?(.*)$/gm,"<h2>$1</h2>")
+             .replace(/^#\\s?(.*)$/gm,"<h1>$1</h1>");
+    out = out.replace(/^>\\s?(.*)$/gm,"<blockquote>$1</blockquote>");
+    out = out.replace(/^\\s*-\\s+(.*)$/gm,"<li>$1</li>");
+    out = out.replace(/(<li>[\\s\\S]*?<\\/li>)/g,"<ul>$1</ul>");
+    out = out.replace(/\\*\\*(.+?)\\*\\*/g,"<strong>$1</strong>")
+             .replace(/\\*(.+?)\\*/g,"<em>$1</em>")
+             .replace(/`(.+?)`/g,"<code>$1</code>");
+    out = out.replace(/\\n{2,}/g,"</p><p>");
+    return "<p>"+out+"</p>";
+  }
+
+  function buildLivroVivoHtml(title, md){
+    const body = mdToHtml(md);
+    return `
+<!doctype html><html lang="pt-br">
+<head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>${title||"Stack"}</title>
+<style>
+:root{--bg:#050510;--bg-elev:#09091a;--stroke:rgba(255,255,255,.10);--txt:#e8ecf6;--muted:rgba(232,236,246,.75);}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;}
+header{position:sticky;top:0;z-index:2;padding:10px 12px;border-bottom:1px solid var(--stroke);
+background:radial-gradient(120% 120% at 0% 0%, rgba(240,0,255,.10), transparent 60%),
+radial-gradient(120% 120% at 100% 100%, rgba(0,255,255,.10), transparent 60%), rgba(5,5,16,.98);
+display:flex;align-items:center;justify-content:space-between;gap:8px;}
+header .t{font-weight:900;letter-spacing:.06em;font-size:.95rem;}
+header .x{min-height:44px;padding:.4rem .7rem;border-radius:10px;border:1px solid var(--stroke);background:rgba(255,255,255,.06);color:var(--txt);font-weight:800;cursor:pointer;}
+main{padding:14px;max-width:900px;margin:0 auto;}
+p{line-height:1.65;color:var(--muted)}
+pre{background:#02020a;border:1px solid var(--stroke);padding:10px;border-radius:10px;overflow:auto;}
+blockquote{margin:.8rem 0;padding:.6rem .8rem;border-left:3px solid rgba(0,255,255,.6);
+background:rgba(0,255,255,.06);border-radius:8px;}
+details{border:1px solid var(--stroke);border-radius:12px;padding:.6rem .8rem;margin:.7rem 0;background:var(--bg-elev);}
+summary{cursor:pointer;font-weight:900;letter-spacing:.04em;}
+footer{opacity:.6;font-size:.8rem;margin-top:2rem;text-align:center;}
+</style>
+</head>
+<body>
+<header>
+  <div class="t">📖 ${title||"Stack do Livro Vivo"}</div>
+  <button class="x" onclick="parent.postMessage({type:'closeLivroVivoStack'},'*')">Fechar</button>
+</header>
+<main><details open><summary>Conteúdo</summary>${body}</details>
+<footer>Legendas pela comunidade Amara.org</footer></main>
+</body></html>`;
+  }
+
+  function updatePreview(){
+    preview.innerHTML = mdToHtml(contentA.value);
+  }
+  contentA.addEventListener("input", updatePreview);
+
+  function openModal({title="", content="", index=null}){
+    editingIndex = index;
+    headerT.textContent = index===null ? "NOVA STACK" : "EDITAR STACK";
+    titleI.value = title;
+    contentA.value = content;
+    updatePreview();
+    modal.classList.add("show");
+  }
+  function closeModal(){
+    modal.classList.remove("show");
+    editingIndex = null;
+  }
+
+  async function openLivroVivo(){
+    const t = titleI.value.trim() || "Stack";
+    const md = contentA.value || "";
+    const htmlStr = buildLivroVivoHtml(t, md);
+    const blob = new Blob([htmlStr], {type:"text/html"});
+    const url = URL.createObjectURL(blob);
+    currentBlobUrl = url;
+
+    if(typeof window.openInViewer==="function"){
+      window.openInViewer(url, "📖 "+t, {isStack:true});
+      // close viewer by message
+      const handler = (ev)=>{
+        if(ev?.data?.type==="closeLivroVivoStack"){
+          window.removeEventListener("message", handler);
+          setTimeout(()=>URL.revokeObjectURL(url), 2000);
+        }
+      };
+      window.addEventListener("message", handler);
+    }else{
+      window.open(url,"_blank","noopener,noreferrer");
+      setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    }
+  }
+
+  function saveStack(){
+    const t = titleI.value.trim();
+    if(!t){ alert("Dá um título pra stack."); return; }
+    const md = contentA.value || "";
+    const stacks = (window.loadStacks? loadStacks(): []);
+    if(editingIndex===null){
+      stacks.push({ title:t, content:md, preview:md.slice(0,140), ts:Date.now() });
+    }else{
+      const idx = Number(editingIndex);
+      if(stacks[idx]){
+        stacks[idx].title = t;
+        stacks[idx].content = md;
+        stacks[idx].preview = md.slice(0,140);
+        stacks[idx].ts = Date.now();
+      }
+    }
+    if(window.saveStacks) saveStacks(stacks);
+    if(window.renderStacks) renderStacks();
+    addSys?.("Stack salva. ✅");
+    closeModal();
+  }
+
+  btnOpen.onclick = openLivroVivo;
+  btnSave.onclick = saveStack;
+  btnCancel.onclick = closeModal;
+
+  // Override openNewStack / openStack
+  window.openNewStack = function(seedText=""){
+    openModal({title:"", content:seedText, index:null});
+  };
+  window.openStack = function(i){
+    const stacks = (window.loadStacks? loadStacks(): []);
+    const s = stacks[i];
+    if(!s) return;
+    openModal({title:s.title||"", content:s.content||"", index:i});
+  };
+})();
+</script>
+
 </body>
+
+<!-- =========================================================
+     📖 Livro Vivo Stacks — Modal Editor + Viewer (NEXT Patch)
+     - openNewStack / openStack sem prompt()
+     - Abrir stack em estilo Livro Vivo no viewer
+     - Editor com preview MD
+     ========================================================= -->
+<style>
+/* MOBILE-FIRST VERTICAL HARD-LOCK */
+
+/* Modal Stacks */
+.lvStackModal{
+  position:fixed; inset:0; z-index:80;
+  display:none; align-items:center; justify-content:center;
+  background:rgba(2,3,10,.96);
+  padding:10px;
+}
+.lvStackModal.show{ display:flex; }
+.lvStackPanel{
+  width:100%; max-width:1100px; height:92vh;
+  background:#050510;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.lvStackHeader{
+  display:flex; align-items:center; gap:8px; justify-content:space-between;
+  padding:10px 12px;
+  background:
+    radial-gradient(140% 120% at 0% 0%, rgba(240,0,255,.10), transparent 60%),
+    radial-gradient(140% 120% at 100% 100%, rgba(0,255,255,.10), transparent 60%),
+    rgba(5,5,16,.98);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.lvStackHeader .title{
+  font-weight:900; letter-spacing:.08em; font-size:.95rem; text-transform:uppercase;
+}
+.lvStackHeader .actions{ display:flex; gap:8px; }
+.lvStackHeader button{
+  min-height:44px; padding:.45rem .8rem; border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.07);
+  color:#e8ecf6; font-weight:800; cursor:pointer;
+}
+.lvStackBody{
+  flex:1; display:flex; flex-direction:column; gap:8px; padding:10px;
+  overflow:auto;
+}
+.lvStackInputs{
+  display:flex; flex-direction:column; gap:8px;
+}
+.lvStackInputs input{
+  width:100%; min-height:44px; padding:10px 12px;
+  border-radius:12px; border:1px solid rgba(255,255,255,.10);
+  background:#02020a; color:#e8ecf6; font-weight:800; letter-spacing:.02em;
+}
+.lvStackInputs textarea{
+  width:100%; min-height:36vh; resize:vertical;
+  padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.10);
+  background:#02020a; color:#e8ecf6;
+  font-family: ui-monospace, Menlo, Consolas, monospace; font-size:.92rem; line-height:1.55;
+}
+.lvStackPreview{
+  border:1px solid rgba(255,255,255,.10); border-radius:12px;
+  background:#09091a; padding:10px 12px; overflow:auto; max-height:34vh;
+}
+.lvStackPreview h1,h2,h3{ margin:.8rem 0 .4rem }
+.lvStackPreview p{ line-height:1.6; opacity:.85 }
+.lvStackPreview pre{ background:#02020a; padding:9px; border-radius:8px; overflow:auto }
+.lvStackPreview blockquote{ border-left:3px solid rgba(0,255,255,.6); padding:.35rem .6rem; background:rgba(0,255,255,.05); border-radius:8px }
+</style>
+
+<div class="lvStackModal" id="lvStackModal">
+  <div class="lvStackPanel">
+    <div class="lvStackHeader">
+      <div class="title" id="lvStackHeaderTitle">STACK</div>
+      <div class="actions">
+        <button id="lvStackOpen">Abrir Livro Vivo</button>
+        <button id="lvStackSave">Salvar</button>
+        <button id="lvStackCancel">Fechar</button>
+      </div>
+    </div>
+    <div class="lvStackBody">
+      <div class="lvStackInputs">
+        <input id="lvStackTitle" placeholder="Título da stack" />
+        <textarea id="lvStackContent" placeholder="Conteúdo em Markdown..."></textarea>
+      </div>
+      <div class="tiny" style="opacity:.75;margin-top:2px">Preview (Livro Vivo)</div>
+      <div class="lvStackPreview" id="lvStackPreview"></div>
+      <div class="tiny" style="opacity:.55;margin-top:8px;text-align:center">Legendas pela comunidade Amara.org</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* MOBILE-FIRST VERTICAL HARD-LOCK */
+/* =========================================================
+   Livro Vivo Stacks — Editor + Viewer
+   ========================================================= */
+(function(){
+  const modal = document.getElementById("lvStackModal");
+  const headerT = document.getElementById("lvStackHeaderTitle");
+  const titleI = document.getElementById("lvStackTitle");
+  const contentA = document.getElementById("lvStackContent");
+  const preview = document.getElementById("lvStackPreview");
+  const btnOpen = document.getElementById("lvStackOpen");
+  const btnSave = document.getElementById("lvStackSave");
+  const btnCancel = document.getElementById("lvStackCancel");
+
+  let editingIndex = null; // null -> new
+  let currentBlobUrl = null;
+
+  function mdToHtml(md){
+    let out = String(md||"")
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    out = out.replace(/```([\\s\\S]*?)```/g,(m,code)=>`<pre><code>${code}</code></pre>`);
+    out = out.replace(/^######\\s?(.*)$/gm,"<h6>$1</h6>")
+             .replace(/^#####\\s?(.*)$/gm,"<h5>$1</h5>")
+             .replace(/^####\\s?(.*)$/gm,"<h4>$1</h4>")
+             .replace(/^###\\s?(.*)$/gm,"<h3>$1</h3>")
+             .replace(/^##\\s?(.*)$/gm,"<h2>$1</h2>")
+             .replace(/^#\\s?(.*)$/gm,"<h1>$1</h1>");
+    out = out.replace(/^>\\s?(.*)$/gm,"<blockquote>$1</blockquote>");
+    out = out.replace(/^\\s*-\\s+(.*)$/gm,"<li>$1</li>");
+    out = out.replace(/(<li>[\\s\\S]*?<\\/li>)/g,"<ul>$1</ul>");
+    out = out.replace(/\\*\\*(.+?)\\*\\*/g,"<strong>$1</strong>")
+             .replace(/\\*(.+?)\\*/g,"<em>$1</em>")
+             .replace(/`(.+?)`/g,"<code>$1</code>");
+    out = out.replace(/\\n{2,}/g,"</p><p>");
+    return "<p>"+out+"</p>";
+  }
+
+  function buildLivroVivoHtml(title, md){
+    const body = mdToHtml(md);
+    return `
+<!doctype html><html lang="pt-br">
+<head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>${title||"Stack"}</title>
+<style>
+:root{--bg:#050510;--bg-elev:#09091a;--stroke:rgba(255,255,255,.10);--txt:#e8ecf6;--muted:rgba(232,236,246,.75);}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;}
+header{position:sticky;top:0;z-index:2;padding:10px 12px;border-bottom:1px solid var(--stroke);
+background:radial-gradient(120% 120% at 0% 0%, rgba(240,0,255,.10), transparent 60%),
+radial-gradient(120% 120% at 100% 100%, rgba(0,255,255,.10), transparent 60%), rgba(5,5,16,.98);
+display:flex;align-items:center;justify-content:space-between;gap:8px;}
+header .t{font-weight:900;letter-spacing:.06em;font-size:.95rem;}
+header .x{min-height:44px;padding:.4rem .7rem;border-radius:10px;border:1px solid var(--stroke);background:rgba(255,255,255,.06);color:var(--txt);font-weight:800;cursor:pointer;}
+main{padding:14px;max-width:900px;margin:0 auto;}
+p{line-height:1.65;color:var(--muted)}
+pre{background:#02020a;border:1px solid var(--stroke);padding:10px;border-radius:10px;overflow:auto;}
+blockquote{margin:.8rem 0;padding:.6rem .8rem;border-left:3px solid rgba(0,255,255,.6);
+background:rgba(0,255,255,.06);border-radius:8px;}
+details{border:1px solid var(--stroke);border-radius:12px;padding:.6rem .8rem;margin:.7rem 0;background:var(--bg-elev);}
+summary{cursor:pointer;font-weight:900;letter-spacing:.04em;}
+footer{opacity:.6;font-size:.8rem;margin-top:2rem;text-align:center;}
+</style>
+</head>
+<body>
+<header>
+  <div class="t">📖 ${title||"Stack do Livro Vivo"}</div>
+  <button class="x" onclick="parent.postMessage({type:'closeLivroVivoStack'},'*')">Fechar</button>
+</header>
+<main><details open><summary>Conteúdo</summary>${body}</details>
+<footer>Legendas pela comunidade Amara.org</footer></main>
+</body></html>`;
+  }
+
+  function updatePreview(){
+    preview.innerHTML = mdToHtml(contentA.value);
+  }
+  contentA.addEventListener("input", updatePreview);
+
+  function openModal({title="", content="", index=null}){
+    editingIndex = index;
+    headerT.textContent = index===null ? "NOVA STACK" : "EDITAR STACK";
+    titleI.value = title;
+    contentA.value = content;
+    updatePreview();
+    modal.classList.add("show");
+  }
+  function closeModal(){
+    modal.classList.remove("show");
+    editingIndex = null;
+  }
+
+  async function openLivroVivo(){
+    const t = titleI.value.trim() || "Stack";
+    const md = contentA.value || "";
+    const htmlStr = buildLivroVivoHtml(t, md);
+    const blob = new Blob([htmlStr], {type:"text/html"});
+    const url = URL.createObjectURL(blob);
+    currentBlobUrl = url;
+
+    if(typeof window.openInViewer==="function"){
+      window.openInViewer(url, "📖 "+t, {isStack:true});
+      const handler = (ev)=>{
+        if(ev?.data?.type==="closeLivroVivoStack"){
+          window.removeEventListener("message", handler);
+          setTimeout(()=>URL.revokeObjectURL(url), 2000);
+        }
+      };
+      window.addEventListener("message", handler);
+    }else{
+      window.open(url,"_blank","noopener,noreferrer");
+      setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    }
+  }
+
+  function saveStack(){
+    const t = titleI.value.trim();
+    if(!t){ alert("Dá um título pra stack."); return; }
+    const md = contentA.value || "";
+    const stacks = (window.loadStacks? loadStacks(): []);
+    if(editingIndex===null){
+      stacks.push({ title:t, content:md, preview:md.slice(0,140), ts:Date.now() });
+    }else{
+      const idx = Number(editingIndex);
+      if(stacks[idx]){
+        stacks[idx].title = t;
+        stacks[idx].content = md;
+        stacks[idx].preview = md.slice(0,140);
+        stacks[idx].ts = Date.now();
+      }
+    }
+    if(window.saveStacks) saveStacks(stacks);
+    if(window.renderStacks) renderStacks();
+    if(window.addSys) addSys("Stack salva. ✅");
+    closeModal();
+  }
+
+  btnOpen.onclick = openLivroVivo;
+  btnSave.onclick = saveStack;
+  btnCancel.onclick = closeModal;
+
+  window.openNewStack = function(seedText=""){
+    openModal({title:"", content:seedText, index:null});
+  };
+  window.openStack = function(i){
+    const stacks = (window.loadStacks? loadStacks(): []);
+    const s = stacks[i];
+    if(!s) return;
+    openModal({title:s.title||"", content:s.content||"", index:i});
+  };
+})();
+</script>
+
+
+<script>
+/* ====================================================================== */
+/* PORTA DO RITUAL — SENHA VIVA · BLUECUP                                 */
+/* ====================================================================== */
+(function(){
+  const SENHA_KEY   = "kobllux_senha_viva_v1";
+  const RITUAL_KEY  = "kobllux_senha_viva_ritual_v1";
+  let devUnlocked   = false;
+
+  function hasSenhaViva(){
+    try{
+      return !!localStorage.getItem(SENHA_KEY);
+    }catch(e){
+      console.warn("Senha Viva check error", e);
+      return false;
+    }
+  }
+
+  function consagrarSenhaViva(){
+    const msg = [
+      "✦ SENHA VIVA · BLUECUP ✦",
+      "",
+      "Crie uma frase-código só sua.",
+      "Ela fica apenas neste dispositivo (localStorage).",
+      "",
+      "Digite sua Senha Viva:"
+    ].join("\n");
+
+    const val = prompt(msg, "");
+    if(!val || !val.trim()){
+      window.addSys && window.addSys("⚠️ Senha Viva não criada.");
+      return false;
+    }
+
+    const senha = val.trim();
+    try{
+      localStorage.setItem(SENHA_KEY, senha);
+      localStorage.setItem(RITUAL_KEY, String(Date.now()));
+    }catch(e){
+      console.warn("Falha ao salvar Senha Viva", e);
+    }
+
+    devUnlocked = false;
+    window.addSys && window.addSys("🔐 Senha Viva consagrada.");
+    return true;
+  }
+
+  function pedirSenhaViva(){
+    let stored = "";
+    try{
+      stored = localStorage.getItem(SENHA_KEY) || "";
+    }catch(e){
+      console.warn("Erro ao ler Senha Viva", e);
+      stored = "";
+    }
+
+    if(!stored){
+      return consagrarSenhaViva();
+    }
+
+    const attempt = prompt("Digite sua Senha Viva para abrir o DevPanel:");
+    if(attempt === null){
+      return false;
+    }
+    if(attempt !== stored){
+      window.addSys && window.addSys("❌ Senha Viva incorreta.");
+      return false;
+    }
+
+    devUnlocked = true;
+    window.addSys && window.addSys("✅ DevPanel destravado pela Senha Viva.");
+    return true;
+  }
+
+  const rawToggle = window.toggleDevPanel;
+  if(typeof rawToggle === "function"){
+    window.toggleDevPanel = function(force){
+      const overlay = document.getElementById("devpanelOverlay");
+      const isOpen  = overlay && overlay.classList.contains("show");
+      const wantOpen = (force != null) ? !!force : !isOpen;
+
+      if(!wantOpen){
+        return rawToggle(force);
+      }
+
+      if(!hasSenhaViva()){
+        if(!consagrarSenhaViva()) return;
+      }
+
+      if(!devUnlocked){
+        if(!pedirSenhaViva()) return;
+      }
+
+      return rawToggle(force);
+    };
+  }
+
+  function injectSenhaVivaCard(){
+    const body = document.getElementById("devpanelBody");
+    if(!body) return;
+    if(document.getElementById("senhaVivaCard")) return;
+
+    const card = document.createElement("div");
+    card.className = "db-card";
+    card.id = "senhaVivaCard";
+    card.innerHTML = [
+      '<div class="db-card-title">Senha Viva · Ritual</div>',
+      '<div class="db-row">',
+      '  <button class="btn" id="senhaVivaChangeBtn">Alterar / Reconsagrar</button>',
+      '</div>',
+      '<div class="db-row">',
+      '  <div class="db-small">',
+      '    Protege o DevPanel, o Dual Brain avançado e operações sensíveis.',
+      '    Fica apenas neste dispositivo.',
+      '  </div>',
+      '</div>'
+    ].join("");
+    body.appendChild(card);
+
+    const btn = card.querySelector("#senhaVivaChangeBtn");
+    btn && btn.addEventListener("click", function(){
+      devUnlocked = false;
+      consagrarSenhaViva();
+    });
+  }
+
+  if(document.readyState === "complete" || document.readyState === "interactive"){
+    setTimeout(injectSenhaVivaCard, 80);
+  }else{
+    document.addEventListener("DOMContentLoaded", function(){
+      setTimeout(injectSenhaVivaCard, 80);
+    });
+  }
+})();
+</script>
+
+
+<script>
+/* ====================================================================== */
+/* Override speakByBlocks · modo C (híbrido: usuário + arquétipos)        */
+/* ====================================================================== */
+(function(){
+  if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+    return;
+  }
+
+  function loadDBState(){
+    try{
+      const key = (window.LS && LS.db) ? LS.db : "kobllux_dual_brain_v1";
+      return JSON.parse(localStorage.getItem(key) || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function getVoicesSafe(){
+    try{
+      const v = speechSynthesis.getVoices();
+      return Array.isArray(v) ? v : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function pickUserVoice(state, voices){
+    if(!voices.length) return null;
+    const idx = Number(state.voiceIndex || 0);
+    return voices[idx] || voices[0] || null;
+  }
+
+  function pickArchConfig(tag){
+    const t = String(tag||"").trim().toUpperCase();
+    try{
+      if(window.ARCH_TTS && ARCH_TTS[t]) return ARCH_TTS[t];
+    }catch(e){}
+    if(typeof getVoiceSettings === "function"){
+      try{
+        return getVoiceSettings(t);
+      }catch(e){}
+    }
+    return null;
+  }
+
+  window.speakByBlocks = function(containerEl){
+    const el = containerEl;
+    if(!el) return;
+
+    const blocks = [...el.querySelectorAll(".voice-block")];
+    const plain = (el.dataset && el.dataset.plain) || el.textContent || "";
+
+    // MODO C: se não houver blocos, delega pro speakText (voz do usuário)
+    if(!blocks.length){
+      if(typeof window.speakText === "function"){
+        return window.speakText(plain);
+      }
+      try{
+        const u0 = new SpeechSynthesisUtterance(plain);
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u0);
+      }catch(e){
+        console.warn("speakByBlocks fallback TTS error (sem blocos)", e);
+      }
+      return;
+    }
+
+    const state = loadDBState();
+    const autoVoiceArch = !!state.autoVoiceArch;
+    const voices = getVoicesSafe();
+
+    speechSynthesis.cancel();
+    let idx = 0;
+
+    const playNext = ()=>{
+      if(idx >= blocks.length){
+        if(document.body && document.body.dataset){
+          document.body.dataset.voiceArch = "";
+        }
+        blocks.forEach(b=>b.classList.remove("speaking"));
+        return;
+      }
+
+      const b = blocks[idx++];
+      blocks.forEach(x=>x.classList.remove("speaking"));
+      b.classList.add("speaking");
+
+      const rawTag = b.dataset.voice || "VOZ";
+      const tag = String(rawTag).trim();
+      let text = (b.textContent || "").trim();
+
+      // remove prefixo "TAG:" no início, se existir
+      if(text.toLowerCase().startsWith(tag.toLowerCase())){
+        text = text.slice(tag.length).replace(/^[:\-–\s]+/,"").trim();
+      }
+      if(!text) text = tag;
+
+      // atualiza hint visual do arquétipo
+      if(document.body && document.body.dataset){
+        document.body.dataset.voiceArch = tag.toLowerCase();
+      }
+
+      const u = new SpeechSynthesisUtterance(text);
+
+      if(autoVoiceArch){
+        // voz automática por arquétipo (ARCH_TTS / getVoiceSettings)
+        const cfg = pickArchConfig(tag) || {};
+        if(cfg.rate)  u.rate  = cfg.rate;
+        if(cfg.pitch) u.pitch = cfg.pitch;
+
+        if(cfg.voiceHint && voices.length){
+          const hint = String(cfg.voiceHint).toLowerCase();
+          const v = voices.find(vv => String(vv.name||"").toLowerCase().includes(hint));
+          if(v) u.voice = v;
+        }
+      }else{
+        // voz travada no Dual Brain (selecionada pelo usuário)
+        const vUser = pickUserVoice(state, voices);
+        if(vUser) u.voice = vUser;
+        u.rate  = state.rate  || 1;
+        u.pitch = state.pitch || 1;
+      }
+
+      u.onend = ()=>{ playNext(); };
+      u.onerror = (e)=>{
+        console.warn("speakByBlocks block error (modo C)", e);
+        playNext();
+      };
+
+      try{
+        speechSynthesis.speak(u);
+      }catch(e){
+        console.warn("speakByBlocks speak error (modo C)", e);
+        playNext();
+      }
+    };
+
+    playNext();
+  };
+})();
+</script>
+
+<script id="BC_BGARCH_PATCH">
+(()=>{
+
+/* ==========================================================
+   VISUALKERNEL v3 • Infodose Signatures (leve)
+   - Forms por Arquétipo (v2)
+   - + Layer por Modo UNO/DUAL/TRINITY/SOLAR
+   - Madeira ganha fractal-leaf signature
+   - Stream só pulsa blur/opacity (barato)
+   ========================================================== */
+
+// ===== util hash + prng
+function bcHashStr(str){
+  let h=2166136261>>>0;
+  for(let i=0;i<str.length;i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h>>>0;
+}
+function bcMulberry32(a){
+  return function(){
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+
+// ===== motif: archetype geometry
+function motifForArc(arc, r, W, H){
+  const rand=(a,b)=>a+(b-a)*r();
+  const cx=W/2, cy=H/2;
+  const nebB='var(--neb-b)', nebA='var(--neb-a)', nebC='var(--neb-c)';
+  const woodA='var(--wood-a)', woodB='var(--wood-b)';
+  let g='';
+
+  switch(arc){
+    case 'atlas': {
+      const rings = 5;
+      for(let i=1;i<=rings;i++){
+        const rad = (Math.min(W,H)*0.12*i) + rand(-10,10);
+        g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${nebB}" stroke-opacity="${0.05 + i*0.02}" stroke-width="${8-i}" />`;
+      }
+      for(let i=0;i<6;i++){
+        const x = W*(0.15+i*0.14);
+        g += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="${woodB}" stroke-opacity="0.06" stroke-width="3"/>`;
+        const y = H*(0.12+i*0.14);
+        g += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="${woodB}" stroke-opacity="0.06" stroke-width="3"/>`;
+      }
+      break;
+    }
+    case 'nova': {
+      const rays = 16;
+      for(let i=0;i<rays;i++){
+        const ang = (Math.PI*2/rays)*i;
+        const x2 = cx + Math.cos(ang)*W*0.6;
+        const y2 = cy + Math.sin(ang)*H*0.6;
+        g += `<line x1="${cx}" y1="${cy}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${nebA}" stroke-opacity="0.08" stroke-width="10" />`;
+      }
+      g += `<circle cx="${cx}" cy="${cy}" r="${W*0.18}" fill="none" stroke="${woodA}" stroke-opacity="0.18" stroke-width="12"/>`;
+      break;
+    }
+    case 'kaos': {
+      const shards=7;
+      for(let i=0;i<shards;i++){
+        const pts=[];
+        const n=3+Math.floor(rand(0,4));
+        for(let j=0;j<n;j++) pts.push(`${rand(0,W).toFixed(1)},${rand(0,H).toFixed(1)}`);
+        g += `<polygon points="${pts.join(' ')}" fill="${nebC}" opacity="${rand(0.03,0.08).toFixed(3)}"/>`;
+      }
+      break;
+    }
+    case 'pulse': {
+      const waves=4;
+      for(let i=0;i<waves;i++){
+        const rad = W*(0.18+i*0.12);
+        g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${nebB}" stroke-opacity="0.10" stroke-width="6" />`;
+      }
+      break;
+    }
+    case 'artemis': {
+      g += `<circle cx="${cx}" cy="${cy}" r="${W*0.28}" fill="none" stroke="${nebC}" stroke-opacity="0.12" stroke-width="18"/>`;
+      g += `<circle cx="${cx+W*0.06}" cy="${cy-W*0.02}" r="${W*0.24}" fill="none" stroke="${woodA}" stroke-opacity="0.16" stroke-width="18"/>`;
+      break;
+    }
+    case 'serena': {
+      const petals=6;
+      for(let i=0;i<petals;i++){
+        const ang=(Math.PI*2/petals)*i;
+        const px=cx+Math.cos(ang)*W*0.18;
+        const py=cy+Math.sin(ang)*H*0.18;
+        g += `<ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="${W*0.26}" ry="${H*0.10}" fill="${nebA}" opacity="0.06" transform="rotate(${ang*180/Math.PI} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+      }
+      break;
+    }
+    case 'genus': {
+      const steps=8;
+      let p1=`M ${W*0.1} ${cy}`, p2=`M ${W*0.1} ${cy}`;
+      for(let i=1;i<=steps;i++){
+        const x=W*(0.1+i*0.1);
+        const y1=cy+Math.sin(i*0.9)*H*0.18;
+        const y2=cy-Math.sin(i*0.9)*H*0.18;
+        p1+=` L ${x.toFixed(1)} ${y1.toFixed(1)}`;
+        p2+=` L ${x.toFixed(1)} ${y2.toFixed(1)}`;
+      }
+      g += `<path d="${p1}" fill="none" stroke="${nebB}" stroke-opacity="0.12" stroke-width="8"/>`;
+      g += `<path d="${p2}" fill="none" stroke="${woodB}" stroke-opacity="0.12" stroke-width="8"/>`;
+      break;
+    }
+    case 'lumine': {
+      const beams=5;
+      for(let i=0;i<beams;i++){
+        const x=W*(0.2+i*0.15);
+        g += `<rect x="${x.toFixed(1)}" y="0" width="${W*0.06}" height="${H}" fill="${nebB}" opacity="0.05"/>`;
+      }
+      break;
+    }
+    case 'rhea': {
+      const bands=6;
+      for(let i=0;i<bands;i++){
+        const y=H*(i/bands);
+        g += `<rect x="0" y="${y.toFixed(1)}" width="${W}" height="${H/bands+1}" fill="${woodB}" opacity="${(0.03+i*0.01).toFixed(3)}"/>`;
+      }
+      break;
+    }
+    case 'solus': {
+      g += `<circle cx="${cx}" cy="${cy}" r="${W*0.36}" fill="none" stroke="${nebA}" stroke-opacity="0.10" stroke-width="20"/>`;
+      break;
+    }
+    case 'aion': {
+      const turns=3;
+      let d=`M ${cx} ${cy}`;
+      let ang=0, rad=0; const step=14;
+      for(let i=0;i<turns*60;i++){
+        ang += Math.PI/30; rad += step/60;
+        const x=cx+Math.cos(ang)*rad*10;
+        const y=cy+Math.sin(ang)*rad*10;
+        d+=` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      g += `<path d="${d}" fill="none" stroke="${nebC}" stroke-opacity="0.12" stroke-width="10" />`;
+      break;
+    }
+    case 'vitalis': {
+      const flames=3;
+      for(let i=0;i<flames;i++){
+        const x0=cx-W*0.18+i*W*0.12;
+        const d=`M ${x0.toFixed(1)} ${H*0.9}
+                 C ${x0+W*0.05} ${H*0.55}, ${x0+W*0.12} ${H*0.35}, ${x0+W*0.08} ${H*0.1}
+                 C ${x0+W*0.02} ${H*0.25}, ${x0-W*0.02} ${H*0.45}, ${x0.toFixed(1)} ${H*0.9} Z`;
+        g += `<path d="${d}" fill="${nebA}" opacity="0.06"/>`;
+      }
+      break;
+    }
+    default: { // madeira + signature leaf fractal
+      const veins=5;
+      for(let i=0;i<veins;i++){
+        const x=W*(0.15+i*0.17);
+        const sway = rand(-W*0.04, W*0.04);
+        const d=`M ${x.toFixed(1)} ${H*0.98}
+                 Q ${(x+sway).toFixed(1)} ${H*0.58}, ${x.toFixed(1)} ${H*0.05}`;
+        g += `<path d="${d}" fill="none" stroke="${woodA}" stroke-opacity="0.12" stroke-width="7"/>`;
+        // leaf nodes along vein
+        for(let k=0;k<4;k++){
+          const yy = H*(0.2+k*0.18);
+          g += `<circle cx="${(x + rand(-8,8)).toFixed(1)}" cy="${yy.toFixed(1)}" r="${rand(6,14).toFixed(1)}" fill="${woodB}" opacity="0.10"/>`;
+        }
+      }
+    }
+  }
+  return `<g class="motif arc-${arc}">${g}</g>`;
+}
+
+// ===== motif: mode layer (UNO/DUAL/TRINITY/SOLAR)
+function motifForMode(mode, r, W, H){
+  const cx=W/2, cy=H/2;
+  const nebB='var(--neb-b)', nebC='var(--neb-c)', woodA='var(--wood-a)';
+  const rand=(a,b)=>a+(b-a)*r();
+  let g='';
+
+  switch((mode||'').toLowerCase()){
+    case 'uno': {
+      g += `<circle cx="${cx}" cy="${cy}" r="${W*0.08}" fill="none" stroke="${nebB}" stroke-opacity="0.20" stroke-width="10"/>`;
+      g += `<circle cx="${cx}" cy="${cy}" r="${W*0.015}" fill="${woodA}" opacity="0.85"/>`;
+      break;
+    }
+    case 'dual': {
+      const off=W*0.06;
+      g += `<circle cx="${cx-off}" cy="${cy}" r="${W*0.10}" fill="none" stroke="${nebB}" stroke-opacity="0.18" stroke-width="10"/>`;
+      g += `<circle cx="${cx+off}" cy="${cy}" r="${W*0.10}" fill="none" stroke="${nebC}" stroke-opacity="0.18" stroke-width="10"/>`;
+      break;
+    }
+    case 'trinity': {
+      const rad = W*0.09;
+      const R = W*0.14;
+      for(let i=0;i<3;i++){
+        const ang = -Math.PI/2 + i*(Math.PI*2/3);
+        const x=cx+Math.cos(ang)*R;
+        const y=cy+Math.sin(ang)*R;
+        g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad}" fill="none" stroke="${nebB}" stroke-opacity="0.16" stroke-width="9"/>`;
+      }
+      g += `<path d="M ${cx} ${cy-R} L ${cx} ${cy+R}" stroke="${woodA}" stroke-opacity="0.10" stroke-width="6"/>`;
+      break;
+    }
+    case 'solar': {
+      const rays=12;
+      const inner=W*0.10, outer=W*0.22;
+      for(let i=0;i<rays;i++){
+        const ang=i*(Math.PI*2/rays);
+        const x1=cx+Math.cos(ang)*inner, y1=cy+Math.sin(ang)*inner;
+        const x2=cx+Math.cos(ang)*outer, y2=cy+Math.sin(ang)*outer;
+        g += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${nebB}" stroke-opacity="0.12" stroke-width="8"/>`;
+      }
+      g += `<circle cx="${cx}" cy="${cy}" r="${inner}" fill="none" stroke="${nebC}" stroke-opacity="0.18" stroke-width="10"/>`;
+      break;
+    }
+    default: {
+      // nebula: faint heptagram spiral (coroa 7 seres)
+      const pts=[];
+      const R=W*0.22;
+      for(let i=0;i<7;i++){
+        const ang=-Math.PI/2 + i*(Math.PI*2/7);
+        pts.push([cx+Math.cos(ang)*R, cy+Math.sin(ang)*R]);
+      }
+      for(let i=0;i<7;i++){
+        const a=pts[i], b=pts[(i+2)%7];
+        g += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="${nebB}" stroke-opacity="0.06" stroke-width="6"/>`;
+      }
+      g += `<circle cx="${cx}" cy="${cy}" r="${W*0.04}" fill="${woodA}" opacity="0.18"/>`;
+    }
+  }
+  return `<g class="motif mode-${mode}">${g}</g>`;
+}
+
+// ===== SVG background
+function bcGenBackgroundSVG(seed, arc, mode, intensity=1, quality=1){
+  const r = bcMulberry32(seed>>>0);
+  const W=1200, H=1200;
+  const blobs = Math.max(4, Math.round((6 + r()*8*intensity) * quality));
+  const stars = Math.max(24, Math.round((40 + r()*120*intensity) * quality));
+
+  const neb = [
+    'var(--neb-a)','var(--neb-b)','var(--neb-c)',
+    'var(--wood-a)','var(--wood-b)'
+  ];
+  const rand=(a,b)=>a+(b-a)*r();
+
+  let circles='';
+  for(let i=0;i<blobs;i++){
+    const cx=rand(0,W), cy=rand(0,H);
+    const rad=rand(120,360)*intensity;
+    const col=neb[Math.floor(rand(0,neb.length))];
+    const op=rand(0.07,0.20);
+    circles += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}" fill="${col}" opacity="${op.toFixed(3)}"/>`;
+  }
+
+  let starDots='';
+  for(let i=0;i<stars;i++){
+    const x=rand(0,W), y=rand(0,H), s=rand(0.6,2.0);
+    const op=rand(0.18,0.7);
+    starDots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${s.toFixed(2)}" fill="#fff" opacity="${op.toFixed(2)}"/>`;
+  }
+
+  const blurStd = (12 + 7*intensity) * (0.6 + 0.4*quality);
+
+  const motifArc  = motifForArc(arc, r, W, H);
+  const motifMode = motifForMode(mode, r, W, H);
+
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="var(--neb-b)"/>
+      <stop offset="55%" stop-color="var(--neb-c)"/>
+      <stop offset="100%" stop-color="var(--neb-a)"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="${blurStd}"/></filter>
+    <radialGradient id="vignette" cx="50%" cy="45%" r="75%">
+      <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  ${circles}
+  ${motifMode}
+  ${motifArc}
+  ${starDots}
+  <rect width="100%" height="100%" fill="url(#vignette)"/>
+</svg>`;
+}
+
+// ===== icon generator (kept)
+function bcGenIconSVG(seed, size=512){
+  const r = bcMulberry32(seed>>>0);
+  const W=size, H=size;
+  const rand=(a,b)=>a+(b-a)*r();
+  const halo1 = rand(size*0.70, size*0.90);
+  const halo2 = rand(size*0.55, size*0.75);
+  const core  = rand(size*0.28, size*0.38);
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    <linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="var(--neb-b)"/>
+      <stop offset="60%" stop-color="var(--neb-c)"/>
+      <stop offset="100%" stop-color="var(--neb-a)"/>
+    </linearGradient>
+    <radialGradient id="core" cx="35%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#fff" stop-opacity=".95"/>
+      <stop offset="60%" stop-color="var(--wood-a)" stop-opacity=".9"/>
+      <stop offset="100%" stop-color="var(--wood-c)" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" rx="${size*0.22}" fill="#050510"/>
+  <circle cx="${W/2}" cy="${H/2}" r="${halo1/2}" fill="url(#g)" opacity=".26"/>
+  <circle cx="${W/2}" cy="${H/2}" r="${halo2/2}" fill="url(#g)" opacity=".40"/>
+  <circle cx="${W/2}" cy="${H/2}" r="${core/2}" fill="url(#core)"/>
+</svg>`;
+}
+
+// ===== layers + smooth crossfade
+const baseId = "bgLayer";
+let layerA = document.getElementById(baseId);
+if(!layerA) return;
+
+const cssId = "BC_BGARCH_CSS";
+if(!document.getElementById(cssId)){
+  const st = document.createElement("style");
+  st.id = cssId;
+  st.textContent = `
+    #${baseId}, #${baseId}-b{
+      position:fixed; inset:0; z-index:-1; overflow:hidden; background:#000;
+      transition: opacity 1200ms ease;
+      will-change: opacity, filter;
+    }
+    #${baseId} svg, #${baseId}-b svg{
+      width:100%; height:100%; display:block; transform:scale(1.05);
+      filter:saturate(1.05) contrast(1.05);
+    }
+    body.ai-active #${baseId}, body.ai-active #${baseId}-b{
+      animation: bcPulseBG 1.6s ease-in-out infinite;
+    }
+    @keyframes bcPulseBG{
+      0%{ filter: blur(0px) saturate(1.05); }
+      50%{ filter: blur(3px) saturate(1.18); }
+      100%{ filter: blur(0px) saturate(1.05); }
+    }
+  `;
+  document.head.appendChild(st);
+}
+
+let layerB = document.getElementById(baseId+"-b");
+if(!layerB){
+  layerB = document.createElement("div");
+  layerB.id = baseId+"-b";
+  layerB.setAttribute("aria-hidden","true");
+  layerA.after(layerB);
+}
+layerA.style.opacity = "1";
+layerB.style.opacity = "0";
+
+let front = layerA, back = layerB;
+function crossfadeTo(svg){
+  back.innerHTML = svg;
+  requestAnimationFrame(()=>{
+    back.style.opacity = "1";
+    front.style.opacity = "0";
+    const tmp = front; front = back; back = tmp;
+  });
+}
+
+function bcApplyBackground(seed, arc, mode, intensity=1, quality=1){
+  const svg = bcGenBackgroundSVG(seed, arc, mode, intensity, quality);
+  crossfadeTo(svg);
+}
+
+/* ---- Archetype palettes ---- */
+const BC_ARCH_BG = {
+  atlas:   { neb:['#00F5FF','#6A00FF','#0B1025'], wood:['#9BFF8A','#34F28A','#0C6B3E'], intensity:1.15 },
+  nova:    { neb:['#FF7AF3','#00F5FF','#6A00FF'], wood:['#C9FF6A','#7CFFB8','#34F28A'], intensity:1.30 },
+  vitalis: { neb:['#FF3B3B','#FF8A00','#FF00E6'], wood:['#FFD36A','#FF7A1A','#C94900'], intensity:1.45 },
+  pulse:   { neb:['#00F5FF','#00E1FF','#0B1025'], wood:['#34F28A','#00FFA3','#0C6B3E'], intensity:1.20 },
+  artemis: { neb:['#B37CFF','#00F5FF','#050510'], wood:['#C9FF6A','#8CFFDA','#34F28A'], intensity:1.22 },
+  serena:  { neb:['#FFB6E9','#8A7CFF','#00F5FF'], wood:['#C9FF6A','#A6FFD6','#34F28A'], intensity:1.05 },
+  kaos:    { neb:['#FF00E6','#FF3B3B','#6A00FF'], wood:['#9BFF8A','#34F28A','#00FFEA'], intensity:1.55 },
+  genus:   { neb:['#00F5FF','#2DFF9B','#6A00FF'], wood:['#C9FF6A','#34F28A','#0C6B3E'], intensity:1.18 },
+  lumine:  { neb:['#FFFFFF','#B7F7FF','#6A00FF'], wood:['#E6FFB0','#9BFF8A','#34F28A'], intensity:1.10 },
+  rhea:    { neb:['#FFC66A','#FF7AF3','#6A00FF'], wood:['#C9FF6A','#34F28A','#0C6B3E'], intensity:1.12 },
+  solus:   { neb:['#FFD36A','#FF8A00','#FF3B3B'], wood:['#FFE89A','#C9FF6A','#34F28A'], intensity:1.28 },
+  aion:    { neb:['#00F5FF','#FF00E6','#0B1025'], wood:['#C9FF6A','#34F28A','#00FFA3'], intensity:1.35 },
+  madeira: { neb:['#00F5FF','#6A00FF','#FF00E6'], wood:['#C9FF6A','#34F28A','#0C6B3E'], intensity:1.20 }
+};
+
+function bcSetArchetypeTheme(arc){
+  const cfg = BC_ARCH_BG[arc] || BC_ARCH_BG.madeira;
+  const [na, nb, nc] = cfg.neb;
+  const [wa, wb, wc] = cfg.wood;
+
+  document.documentElement.style.setProperty('--neb-a', na);
+  document.documentElement.style.setProperty('--neb-b', nb);
+  document.documentElement.style.setProperty('--neb-c', nc);
+  document.documentElement.style.setProperty('--wood-a', wa);
+  document.documentElement.style.setProperty('--wood-b', wb);
+  document.documentElement.style.setProperty('--wood-c', wc);
+
+  document.body.dataset.arc = arc;
+  return cfg;
+}
+
+function bcDetectArchetype(text=""){
+  const t = (text||"").toLowerCase();
+  const tag = t.match(/\[arc:(atlas|nova|vitalis|pulse|artemis|serena|kaos|genus|lumine|rhea|solus|aion)\]/);
+  if(tag) return tag[1];
+
+  if(/estrat|planej|métod|sistem|organiza|mapa|arquitet/.test(t)) return 'atlas';
+  if(/novo|luz|brilha|ideia|futuro|expan|cria|wow/.test(t)) return 'nova';
+  if(/cans|força|vai|agora|fogo|urg|energia|bora/.test(t)) return 'vitalis';
+  if(/pulso|centro|respira|ritmo|calma ativa|fluxo/.test(t)) return 'pulse';
+  if(/lua|caça|mira|precis|silênc|noturno/.test(t)) return 'artemis';
+  if(/suave|amor|acolhe|paz|seren|delicad/.test(t)) return 'serena';
+  if(/caos|quebra|rebel|insano|explod|glitch/.test(t)) return 'kaos';
+  if(/dna|mistura|híbrido|combina|soma|gene/.test(t)) return 'genus';
+  if(/clareia|livro|ensina|sábio|lúmen|revela/.test(t)) return 'lumine';
+  if(/terra|mãe|nutre|base|raiz|casa/.test(t)) return 'rhea';
+  if(/só|sol|retiro|essência|único|quieto/.test(t)) return 'solus';
+  if(/tempo|eterno|ciclo|aion|infin/.test(t)) return 'aion';
+  return 'madeira';
+}
+
+function bcRedraw(){
+  const seedText = `${state.arc}|${state.mode}|${state.seed}`;
+  const cfg = bcSetArchetypeTheme(state.arc);
+  bcApplyBackground(bcHashStr(seedText), state.arc, state.mode, cfg.intensity, 1);
+}
+
+// ===== state
+const state = {
+  arc: localStorage.getItem('bc.vk.arc') || 'madeira',
+  mode: localStorage.getItem('bc.vk.mode') || 'nebula',
+  seed: localStorage.getItem('bc.vk.seed') || (Date.now().toString()),
+  autoFromAssistant: true
+};
+
+// ===== public API
+window.BlueVisual = {
+  setArc(arc, seed){
+    if(!arc) return;
+    const a = arc.toLowerCase();
+    if(state.arc === a && !seed) return;
+    state.arc = a;
+    if(seed) state.seed = seed.toString();
+    localStorage.setItem('bc.vk.arc', state.arc);
+    localStorage.setItem('bc.vk.seed', state.seed);
+    bcRedraw();
+  },
+  setMode(mode, seed){
+    if(!mode) return;
+    state.mode = mode.toLowerCase();
+    if(seed) state.seed = seed.toString();
+    localStorage.setItem('bc.vk.mode', state.mode);
+    localStorage.setItem('bc.vk.seed', state.seed);
+    bcRedraw();
+  },
+  redraw(){ bcRedraw(); },
+  detect(text){ return bcDetectArchetype(text); },
+  genIconSVG(size=512, seedText){
+    bcSetArchetypeTheme(state.arc);
+    const seed = bcHashStr(seedText || `${state.arc}|${state.mode}|icon|${state.seed}`);
+    return bcGenIconSVG(seed, size);
+  },
+  exportIconPNG(size=512){
+    const svg = this.genIconSVG(size);
+    exportSVGtoPNG(svg, size, `bluecup-${state.arc}-${size}.png`);
+  }
+};
+
+// ===== export helper
+function exportSVGtoPNG(svgString, size, filename){
+  const svgBlob = new Blob([svgString], {type:"image/svg+xml;charset=utf-8"});
+  const url = URL.createObjectURL(svgBlob);
+  const img = new Image();
+  img.onload = ()=>{
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img,0,0,size,size);
+    URL.revokeObjectURL(url);
+    canvas.toBlob((pngBlob)=>{
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(pngBlob);
+      a.download = filename;
+      a.click();
+    }, "image/png");
+  };
+  img.src = url;
+}
+
+// ===== bind clicks for any element with data-arc or data-mode
+function autoBind(){
+  document.querySelectorAll('[data-arc]').forEach(el=>{
+    if(el.__vkBound) return;
+    el.__vkBound = true;
+    el.addEventListener('click', ()=> window.BlueVisual.setArc(el.dataset.arc));
+  });
+  document.querySelectorAll('[data-mode]').forEach(el=>{
+    if(el.__vkBound) return;
+    el.__vkBound = true;
+    el.addEventListener('click', ()=> window.BlueVisual.setMode(el.dataset.mode));
+  });
+}
+autoBind();
+new MutationObserver(autoBind).observe(document.body,{subtree:true,childList:true});
+
+// ===== stream pulse hooks (cheap)
+window.BlueCupBG = {
+  onDelta(isOn=true){
+    document.body.classList.toggle('ai-active', !!isOn);
+  },
+  onFinal(text){
+    document.body.classList.remove('ai-active');
+    if(!state.autoFromAssistant) return;
+    const arc = bcDetectArchetype(text||"");
+    if(arc && arc !== state.arc) window.BlueVisual.setArc(arc, Date.now().toString());
+  }
+};
+
+// ===== optional auto-hook addMsg
+try{
+  if(typeof window.addMsg === 'function' && !window.addMsg.__vkPatched){
+    const _addMsg = window.addMsg;
+    window.addMsg = function(role, text, ...rest){
+      const el = _addMsg.call(this, role, text, ...rest);
+      if(role==='bot' || role==='assistant') window.BlueCupBG.onFinal(text||"");
+      return el;
+    };
+    window.addMsg.__vkPatched = true;
+  }
+}catch(e){}
+
+// boot
+window.BlueVisual.redraw();
+
+})();
+</script>
+
 </html>
