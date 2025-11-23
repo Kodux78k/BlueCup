@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>jh-infodose · Orçamento & Contrato</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    /* MOBILE-FIRST VERTICAL HARD-LOCK */
+    :root {
+      --nebula-grad-a: #f0f;
+      --nebula-grad-b: #0ff;
+      --kob-bg: #020812;
+      --kob-panel: #050d18;
+      --kob-ink: #eafcff;
+      --kob-muted: #8ac7dd;
+      --kob-accent: #00ffd0;
+      --kob-accent-soft: rgba(0, 255, 208, 0.16);
+      --kob-danger: #ff4b81;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.6);
+      --shadow-chip: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      --gap: 14px;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top, rgba(240, 0, 255, 0.2), transparent 55%),
+                  radial-gradient(circle at bottom, rgba(0, 255, 255, 0.18), transparent 55%),
+                  var(--kob-bg);
+      color: var(--kob-ink);
+      font-family: var(--font-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+    }
+
+    .jh-shell {
+      width: 100%;
+      max-width: 480px;
+      padding: 18px 16px 40px;
+    }
+
+    .jh-card {
+      background: linear-gradient(135deg, rgba(240, 0, 255, 0.12), rgba(0, 255, 255, 0.06)),
+                  var(--kob-panel);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      padding: 18px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .jh-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .jh-badge {
+      align-self: flex-start;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--kob-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .jh-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #0ff, #00ffd0);
+      box-shadow: 0 0 8px rgba(0, 255, 208, 0.8);
+    }
+
+    .jh-title {
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+    .jh-subtitle {
+      font-size: 13px;
+      color: var(--kob-muted);
+      line-height: 1.5;
+    }
+
+    .jh-section {
+      padding: 12px 10px;
+      border-radius: 18px;
+      background: rgba(2, 8, 18, 0.66);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .jh-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--kob-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .jh-section-title span {
+      font-size: 10px;
+    }
+
+    .jh-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .jh-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .jh-label-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--kob-muted);
+    }
+
+    .jh-label-main {
+      font-weight: 500;
+      color: var(--kob-ink);
+    }
+
+    .jh-label-hint {
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    .jh-input,
+    .jh-textarea,
+    .jh-select {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 10px 12px;
+      font-size: 13px;
+      background: rgba(1, 7, 16, 0.92);
+      color: var(--kob-ink);
+      outline: none;
+      box-shadow: var(--shadow-chip);
+    }
+
+    .jh-input::placeholder,
+    .jh-textarea::placeholder {
+      color: rgba(138, 199, 221, 0.75);
+    }
+
+    .jh-input:focus,
+    .jh-textarea:focus,
+    .jh-select:focus {
+      border-color: var(--kob-accent);
+      box-shadow: 0 0 0 1px rgba(0, 255, 208, 0.4);
+    }
+
+    .jh-input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .jh-input::-webkit-outer-spin-button,
+    .jh-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .jh-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: 30px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #0ff 50%),
+        linear-gradient(135deg, #0ff 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 14px,
+        calc(100% - 12px) 14px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .jh-row-inline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .jh-pill-row {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 8px;
+      padding-bottom: 2px;
+    }
+
+    .jh-pill {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0, 255, 208, 0.12);
+      border: 1px solid rgba(0, 255, 208, 0.35);
+      font-size: 11px;
+      color: var(--kob-muted);
+      white-space: nowrap;
+    }
+
+    .jh-highlight {
+      font-size: 18px;
+      font-weight: 650;
+      background: linear-gradient(135deg, #0ff, #f0f);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .jh-summary-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+
+    .jh-summary-line:last-child {
+      border-bottom: none;
+    }
+
+    .jh-summary-label {
+      color: var(--kob-muted);
+    }
+
+    .jh-summary-value {
+      font-weight: 500;
+    }
+
+    .jh-btn-main {
+      width: 100%;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: radial-gradient(circle at top left, rgba(240, 0, 255, 0.7), transparent 50%),
+                  radial-gradient(circle at bottom right, rgba(0, 255, 255, 0.7), transparent 50%),
+                  linear-gradient(135deg, #f0f, #0ff);
+      color: #020812;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .jh-btn-main span.icon {
+      font-size: 15px;
+    }
+
+    .jh-btn-secondary {
+      width: 100%;
+      margin-top: 6px;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid rgba(0, 255, 208, 0.5);
+      background: rgba(2, 8, 18, 0.85);
+      color: var(--kob-ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .jh-btn-secondary span.icon {
+      font-size: 14px;
+    }
+
+    .jh-textarea {
+      border-radius: 14px;
+      min-height: 160px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      line-height: 1.45;
+    }
+
+    .jh-note {
+      font-size: 11px;
+      color: var(--kob-muted);
+      line-height: 1.4;
+    }
+
+    .jh-note strong {
+      color: var(--kob-ink);
+    }
+
+    @media (min-width: 520px) {
+      .jh-card {
+        padding: 20px 18px 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="jh-shell" id="jh-infodose-orc">
+    <div class="jh-card">
+      <header class="jh-header">
+        <div class="jh-badge">
+          <span class="jh-badge-dot"></span>
+          jh-infodose · Orçamento & Contrato
+        </div>
+        <h1 class="jh-title">Gerador de Orçamento Integrado</h1>
+        <p class="jh-subtitle">
+          Engenharia de Segurança + Engenharia Civil + Dual Infodose.  
+          Escolha o modo, preencha os dados e gere o <strong>Orçamento (Markdown)</strong> e a <strong>Minuta de Contrato</strong> em um clique.
+        </p>
+      </header>
+
+      <!-- MODO DO ORÇAMENTO -->
+      <section class="jh-section">
+        <div class="jh-section-title">
+          <span>●</span> Modo do orçamento
+        </div>
+        <div class="jh-grid">
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Modo</span>
+              <span class="jh-label-hint">Pacote integrado × Hora técnica</span>
+            </div>
+            <select id="jh-modo" class="jh-select">
+              <option value="pacote">Pacote de diagnóstico integrado</option>
+              <option value="hora">Serviços contínuos por hora técnica</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- DADOS DO CLIENTE / CONSULTOR -->
+      <section class="jh-section">
+        <div class="jh-section-title">
+          <span>●</span> Dados do cliente e do consultor
+        </div>
+        <div class="jh-grid">
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Nome da empresa (Contratante)</span>
+              <span class="jh-label-hint">Cliente / razão social</span>
+            </div>
+            <input id="jh-nome-empresa" class="jh-input" type="text" placeholder="Ex: Alfa Indústria de Componentes LTDA" />
+          </div>
+
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Cidade / UF da empresa</span>
+              <span class="jh-label-hint">Local da operação</span>
+            </div>
+            <!-- input com datalist de cidades SP + valor padrão Sorocaba -->
+            <input
+              id="jh-local"
+              class="jh-input"
+              type="text"
+              list="jh-cidades-sp"
+              placeholder="Ex: Sorocaba / SP"
+              value="Sorocaba / SP"
+            />
+            <datalist id="jh-cidades-sp">
+              <option value="Sorocaba / SP"></option>
+              <option value="São Paulo / SP"></option>
+              <option value="Jundiaí / SP"></option>
+              <option value="Campinas / SP"></option>
+              <option value="Santos / SP"></option>
+              <option value="São José dos Campos / SP"></option>
+              <option value="Ribeirão Preto / SP"></option>
+            </datalist>
+          </div>
+
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Resumo do cenário</span>
+              <span class="jh-label-hint">Breve descrição da operação</span>
+            </div>
+            <input id="jh-resumo" class="jh-input" type="text" placeholder="Ex: Fábrica com 40 colaboradores, 2 turnos, operação contínua." />
+          </div>
+
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Consultor / Empresa (Contratada)</span>
+              <span class="jh-label-hint">Seu nome ou da sua empresa</span>
+            </div>
+            <input id="jh-consultor-nome" class="jh-input" type="text" placeholder="Ex: JH Engenharia & Infodose" />
+          </div>
+
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Documento da contratada</span>
+              <span class="jh-label-hint">CPF/CNPJ para o contrato</span>
+            </div>
+            <input id="jh-consultor-doc" class="jh-input" type="text" placeholder="Ex: CNPJ 00.000.000/0001-00" />
+          </div>
+        </div>
+      </section>
+
+      <!-- VALORES ENGENHARIA -->
+      <section class="jh-section">
+        <div class="jh-section-title">
+          <span>●</span> Engenharia &amp; Segurança
+        </div>
+        <div class="jh-grid">
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Eng. Segurança do Trabalho</span>
+              <span class="jh-label-hint">Hora técnica (R$) + horas previstas</span>
+            </div>
+            <div class="jh-row-inline">
+              <input
+                id="jh-hr-seg"
+                class="jh-input"
+                type="number"
+                step="0.01"
+                placeholder="Ex: 220"
+                value="220"
+              />
+              <input
+                id="jh-horas-seg"
+                class="jh-input"
+                type="number"
+                step="0.1"
+                placeholder="Ex: 4"
+                value="4"
+              />
+            </div>
+          </div>
+
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Eng. Civil</span>
+              <span class="jh-label-hint">Hora técnica (R$) + horas previstas</span>
+            </div>
+            <div class="jh-row-inline">
+              <input
+                id="jh-hr-civil"
+                class="jh-input"
+                type="number"
+                step="0.01"
+                placeholder="Ex: 200"
+                value="200"
+              />
+              <input
+                id="jh-horas-civil"
+                class="jh-input"
+                type="number"
+                step="0.1"
+                placeholder="Ex: 4"
+                value="4"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INFODOSE / PLANOS -->
+      <section class="jh-section">
+        <div class="jh-section-title">
+          <span>●</span> Dual Infodose &amp; Planos
+        </div>
+
+        <div class="jh-grid">
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Setup Dual Infodose + Livro Vivo</span>
+              <span class="jh-label-hint">Pacote fixo (R$)</span>
+            </div>
+            <input
+              id="jh-setup-infodose"
+              class="jh-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 1800"
+              value="1800"
+            />
+          </div>
+
+          <div class="jh-field">
+            <div class="jh-label-line">
+              <span class="jh-label-main">Acompanhamento mensal (opcional)</span>
+              <span class="jh-label-hint">Mensalidade (R$)</span>
+            </div>
+            <input
+              id="jh-mensal"
+              class="jh-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 900"
+              value="900"
+            />
+          </div>
+
+          <div class="jh-pill-row">
+            <div class="jh-pill">+ Ginástica ergonômica ligada ao diagnóstico</div>
+            <div class="jh-pill">+ Relatórios em Markdown / Infod0x</div>
+            <div class="jh-pill">+ Evidências para auditorias e ações trabalhistas</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESUMO NUMÉRICO -->
+      <section class="jh-section">
+        <div class="jh-section-title">
+          <span>●</span> Resumo de valores
+        </div>
+
+        <div class="jh-grid">
+          <div class="jh-summary-line">
+            <span class="jh-summary-label">Eng. Segurança (total)</span>
+            <span id="jh-out-seg" class="jh-summary-value">R$ 0,00</span>
+          </div>
+          <div class="jh-summary-line">
+            <span class="jh-summary-label">Eng. Civil (total)</span>
+            <span id="jh-out-civil" class="jh-summary-value">R$ 0,00</span>
+          </div>
+          <div class="jh-summary-line">
+            <span class="jh-summary-label">Setup Dual Infodose</span>
+            <span id="jh-out-setup" class="jh-summary-value">R$ 0,00</span>
+          </div>
+          <div class="jh-summary-line">
+            <span class="jh-summary-label">Diagnóstico / Entrada (sem mensalidade)</span>
+            <span id="jh-out-total" class="jh-summary-value jh-highlight">R$ 0,00</span>
+          </div>
+          <div class="jh-summary-line">
+            <span class="jh-summary-label">+ 3 meses de acompanhamento</span>
+            <span id="jh-out-total-3m" class="jh-summary-value">R$ 0,00</span>
+          </div>
+        </div>
+        <p class="jh-note">
+          No modo <strong>Pacote</strong>, o valor de entrada resume o diagnóstico integrado.  
+          No modo <strong>Hora técnica</strong>, ele funciona como estimativa inicial de horas + setup.
+        </p>
+      </section>
+
+      <!-- MARKDOWN ORÇAMENTO -->
+      <section class="jh-section">
+        <div class="jh-section-title">
+          <span>●</span> Markdown · Orçamento (Livro Vivo / Infod0x)
+        </div>
+        <div class="jh-grid">
+          <textarea id="jh-markdown" class="jh-textarea" placeholder="Clique em &quot;Gerar Orçamento & Contrato&quot; para criar o Markdown automaticamente."></textarea>
+          <button id="jh-copy" class="jh-btn-secondary" type="button">
+            <span class="icon">📋</span> Copiar orçamento (Markdown)
+          </button>
+        </div>
+      </section>
+
+      <!-- CONTRATO / MINUTA -->
+      <section class="jh-section">
+        <div class="jh-section-title">
+          <span>●</span> Contrato / Minuta automática
+        </div>
+        <div class="jh-grid">
+          <textarea id="jh-contrato" class="jh-textarea" placeholder="Clique em &quot;Gerar Orçamento & Contrato&quot; para criar a minuta automaticamente."></textarea>
+          <button id="jh-copy-contrato" class="jh-btn-secondary" type="button">
+            <span class="icon">📜</span> Copiar contrato
+          </button>
+        </div>
+      </section>
+
+      <!-- BOTÃO PRINCIPAL -->
+      <button id="jh-generate" class="jh-btn-main" type="button">
+        <span class="icon">⚡️</span>
+        <span>Gerar Orçamento & Contrato com jh-infodose</span>
+      </button>
+
+      <p class="jh-note">
+        Esse módulo <strong>jh-infodose</strong> foi pensado pra encaixar direto no teu Livro Vivo, em PWA ou webview.  
+        Gera o orçamento, cola o Markdown no Infod0x e usa a minuta como base contratual.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      function parseNumber(id) {
+        const el = document.getElementById(id);
+        if (!el) return 0;
+        const v = parseFloat(String(el.value).replace(",", "."));
+        return isNaN(v) ? 0 : v;
+      }
+
+      function formatBR(value) {
+        return value.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        });
+      }
+
+      function gerarOrcamentoEContrato() {
+        const modo = document.getElementById("jh-modo").value;
+
+        const nomeEmpresa = document.getElementById("jh-nome-empresa").value.trim() || "EMPRESA DO CLIENTE";
+        const localEmpresa = document.getElementById("jh-local").value.trim() || "Cidade/UF";
+        const resumo = document.getElementById("jh-resumo").value.trim() ||
+          "Cenário operacional descrito com base na visita e nas informações do cliente.";
+
+        const consultorNome = document.getElementById("jh-consultor-nome").value.trim() || "[NOME DO CONSULTOR / EMPRESA]";
+        const consultorDoc = document.getElementById("jh-consultor-doc").value.trim() || "[CPF/CNPJ]";
+
+        const hrSeg = parseNumber("jh-hr-seg");
+        const horasSeg = parseNumber("jh-horas-seg");
+        const hrCivil = parseNumber("jh-hr-civil");
+        const horasCivil = parseNumber("jh-horas-civil");
+        const setupInfodose = parseNumber("jh-setup-infodose");
+        const mensal = parseNumber("jh-mensal");
+
+        const totalSeg = hrSeg * horasSeg;
+        const totalCivil = hrCivil * horasCivil;
+        const totalDiagnostico = totalSeg + totalCivil + setupInfodose;
+        const total3Meses = totalDiagnostico + mensal * 3;
+
+        document.getElementById("jh-out-seg").textContent = formatBR(totalSeg);
+        document.getElementById("jh-out-civil").textContent = formatBR(totalCivil);
+        document.getElementById("jh-out-setup").textContent = formatBR(setupInfodose);
+        document.getElementById("jh-out-total").textContent = formatBR(totalDiagnostico);
+        document.getElementById("jh-out-total-3m").textContent = formatBR(total3Meses);
+
+        // Títulos dinâmicos conforme modo
+        const tituloPrincipal =
+          modo === "hora"
+            ? "Orçamento Técnico – Serviços por Hora"
+            : "Orçamento Técnico – Pacote de Diagnóstico Integrado";
+
+        const labelDiagnostico =
+          modo === "hora"
+            ? "Estimativa inicial (horas técnicas + setup)"
+            : "Diagnóstico inicial (sem mensalidade)";
+
+        const textoModoResumo =
+          modo === "hora"
+            ? "Este orçamento está estruturado no modo **hora técnica**, com possibilidade de setup Dual Infodose e plano mensal de acompanhamento."
+            : "Este orçamento está estruturado no modo **pacote de diagnóstico integrado**, incluindo engenharia de segurança, engenharia civil e ativação Dual Infodose.";
+
+        // MARKDOWN DO ORÇAMENTO
+        const md = [
+          `# ${tituloPrincipal}`,
+          "## Engenharia de Segurança · Engenharia Civil · Dual Infodose",
+          "",
+          "::info",
+          `Cliente (Contratante): **${nomeEmpresa}**`,
+          `Local da operação: **${localEmpresa}**`,
+          `Cenário resumido: ${resumo}`,
+          "",
+          `Consultor(a) / Empresa (Contratada): **${consultorNome}**`,
+          `Documento da contratada: ${consultorDoc}`,
+          "::",
+          "",
+          "## 1. Estrutura do investimento",
+          "",
+          textoModoResumo,
+          "",
+          "### Engenharia de Segurança do Trabalho",
+          `- Valor hora: ${hrSeg > 0 ? formatBR(hrSeg) : "a definir"} `,
+          `- Horas previstas: ${horasSeg ? horasSeg.toString().replace(".", ",") + " h" : "a definir"}`,
+          `- Total estimado: **${formatBR(totalSeg)}**`,
+          "",
+          "### Engenharia Civil",
+          `- Valor hora: ${hrCivil > 0 ? formatBR(hrCivil) : "a definir"} `,
+          `- Horas previstas: ${horasCivil ? horasCivil.toString().replace(".", ",") + " h" : "a definir"}`,
+          `- Total estimado: **${formatBR(totalCivil)}**`,
+          "",
+          "### Dual Infodose + Livro Vivo",
+          `- Setup Dual Infodose + modelo de relatório (Markdown / Infod0x + PDF): **${formatBR(setupInfodose)}**`,
+          "",
+          "::success",
+          `**${labelDiagnostico}: ${formatBR(totalDiagnostico)}**`,
+          "::",
+          "",
+          "### Acompanhamento mensal (opcional)",
+          mensal > 0
+            ? `- Valor mensal proposto: **${formatBR(mensal)}**`
+            : "- Valor mensal: a definir de acordo com o plano escolhido.",
+          mensal > 0
+            ? `- Investimento total considerando 3 meses de acompanhamento: **${formatBR(total3Meses)}**`
+            : "",
+          "",
+          "## 2. O que está incluído",
+          "",
+          "- Integração da visão de Engenharia de Segurança do Trabalho (NRs, riscos, PGR, ergonomia) e Engenharia Civil (layout, circulação, infraestrutura).",
+          "- Coleta guiada de informações via fluxo Dual Infodose (gestores e colaboradores).",
+          "- Consolidação de dados em relatório **Livro Vivo**:",
+          "  - Formato Markdown / Infod0x para edição contínua.",
+          "  - Versão PDF para envio e arquivamento formal.",
+          "- Propostas iniciais de ajustes ergonômicos e plano de ginástica laboral alinhados com os riscos mapeados.",
+          "",
+          "## 3. Por que esse pacote / hora técnica é estratégico",
+          "",
+          "::warn",
+          "Sem essa integração, a empresa fica mais exposta a:",
+          "",
+          "- Multas e autuações em fiscalizações trabalhistas e de segurança.",
+          "- Ações trabalhistas por doenças ocupacionais e acidentes.",
+          "- Interdição de áreas ou máquinas, parando a operação.",
+          "- Perdas de produtividade por dor, afastamentos e rotatividade.",
+          "::",
+          "",
+          "::info",
+          "Com a combinação **Engenharia + Dual Infodose**, o processo fica:",
+          "",
+          "- Menos burocrático (fluxos guiados em linguagem simples).",
+          "- Mais rápido (dados centralizados, relatórios automáticos).",
+          "- Mais criativo (mais tempo de engenharia em solução, menos em papelada).",
+          "::",
+          "",
+          "## 4. Próximos passos",
+          "",
+          "- Aprovar este orçamento e confirmar o modo de contratação:",
+          modo === "hora"
+            ? "- **Serviços por hora técnica**, com emissão de relatórios conforme a evolução dos trabalhos."
+            : "- **Pacote de diagnóstico integrado**, com entrega de relatório consolidado e plano de ação.",
+          "- Agendar a primeira visita técnica e a ativação do painel Dual Infodose.",
+          "- Iniciar o registro das primeiras evidências (fotos, relatos, medições, checklists).",
+          "",
+          "> Documento gerado pelo módulo **jh-infodose · Orçamento Vivo** e passível de atualização conforme a realidade do projeto."
+        ].join("\n");
+
+        document.getElementById("jh-markdown").value = md;
+
+        // CONTRATO / MINUTA
+        const hoje = new Date();
+        const dia = String(hoje.getDate()).padStart(2, "0");
+        const ano = hoje.getFullYear();
+        const meses = [
+          "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+          "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+        ];
+        const mesNome = meses[hoje.getMonth()];
+
+        const textoObjeto =
+          modo === "hora"
+            ? "prestação de serviços técnicos profissionais de consultoria em Engenharia de Segurança do Trabalho e Engenharia Civil, com cobrança baseada em hora técnica, incluindo, quando contratado, a integração da plataforma Dual Infodose para coleta e organização de dados e emissão de relatórios."
+            : "prestação de serviços técnicos profissionais de diagnóstico integrado em Engenharia de Segurança do Trabalho e Engenharia Civil, incluindo a ativação e uso da plataforma Dual Infodose para coleta de dados, elaboração de relatório técnico e apoio à implementação de melhorias ergonômicas e de segurança.";
+
+        const textoRemuneracao =
+          modo === "hora"
+            ? [
+                "A remuneração pelos serviços será composta por:",
+                "",
+                "- Hora técnica de Engenharia de Segurança do Trabalho:",
+                `  - Valor hora: ${hrSeg > 0 ? formatBR(hrSeg) : "a definir entre as partes"}.`,
+                `  - Estimativa inicial de horas: ${horasSeg ? horasSeg.toString().replace(".", ",") + " h" : "a preencher conforme escopo detalhado."}`,
+                "",
+                "- Hora técnica de Engenharia Civil:",
+                `  - Valor hora: ${hrCivil > 0 ? formatBR(hrCivil) : "a definir entre as partes"}.`,
+                `  - Estimativa inicial de horas: ${horasCivil ? horasCivil.toString().replace(".", ",") + " h" : "a preencher conforme escopo detalhado."}`,
+                "",
+                "- Setup Dual Infodose + modelo de relatório Livro Vivo:",
+                `  - Valor: ${formatBR(setupInfodose)}.`,
+                "",
+                mensal > 0
+                  ? `Opcionalmente, as partes poderão contratar plano de acompanhamento mensal no valor de ${formatBR(mensal)}, com escopo de horas e entregas definido em anexo específico.`
+                  : "Opcionalmente, as partes poderão contratar plano de acompanhamento mensal, com valores e escopo definidos em anexo específico.",
+                "",
+                "Os valores acima poderão ser ajustados de comum acordo entre as partes, mediante registro em aditivo contratual ou proposta complementar."
+              ].join("\n")
+            : [
+                "A remuneração pelos serviços será composta por:",
+                "",
+                "- Pacote de diagnóstico integrado, incluindo:",
+                "  - Visitas técnicas, levantamentos e análises em Engenharia de Segurança do Trabalho e Engenharia Civil;",
+                "  - Integração com a plataforma Dual Infodose para coleta de dados;",
+                "  - Elaboração de relatório técnico em formato Livro Vivo (Markdown / Infod0x) e versão PDF.",
+                "",
+                `O valor de referência para o diagnóstico inicial é de ${formatBR(totalDiagnostico)}, considerando a combinação de horas técnicas e setup Dual Infodose.`,
+                "",
+                mensal > 0
+                  ? `Caso o CONTRATANTE opte por acompanhamento contínuo, poderá ser contratado plano mensal no valor de ${formatBR(mensal)}, com escopo detalhado em anexo.`
+                  : "Caso o CONTRATANTE opte por acompanhamento contínuo, poderá ser contratado plano mensal, com valores e escopo definidos em anexo.",
+                "",
+                "Os pagamentos serão realizados conforme cronograma ou condições definidas na proposta comercial anexada a este instrumento."
+              ].join("\n");
+
+        const contrato = [
+          "CONTRATO DE PRESTAÇÃO DE SERVIÇOS TÉCNICOS",
+          "",
+          "Pelo presente instrumento particular, de um lado:",
+          "",
+          `**CONTRATANTE:** ${nomeEmpresa}, com estabelecimento em ${localEmpresa}, doravante simplesmente denominada CONTRATANTE;`,
+          "",
+          `e, de outro lado, **CONTRATADA:** ${consultorNome}, inscrita sob ${consultorDoc}, doravante denominada CONTRATADA;`,
+          "",
+          "têm entre si justo e contratado o que segue:",
+          "",
+          "### CLÁUSULA 1 – DO OBJETO",
+          "",
+          `1.1. O presente contrato tem por objeto a ${textoObjeto}`,
+          "",
+          "1.2. Os serviços poderão abranger, entre outros:",
+          "",
+          "- Levantamento de riscos ocupacionais e requisitos legais aplicáveis (NRs, laudos, PGR, ergonomia etc.);",
+          "- Avaliação de layout, circulação, infraestrutura predial e condições de apoio à operação;",
+          "- Emissão de relatórios técnicos, pareceres e recomendações para mitigação de riscos;",
+          "- Apoio à implementação de programas de ginástica laboral/ergonômica, quando aplicável;",
+          "- Organização e registro de dados por meio da plataforma Dual Infodose, com geração de relatórios em formato Livro Vivo.",
+          "",
+          "### CLÁUSULA 2 – DA VIGÊNCIA",
+          "",
+          "2.1. O presente contrato terá início na data de sua assinatura e vigorará pelo prazo necessário à execução dos serviços contratados,",
+          "podendo ser prorrogado por meio de termo aditivo assinado pelas partes.",
+          "",
+          "2.2. Nos casos de contratação em caráter contínuo (hora técnica / acompanhamento mensal), a vigência mínima e as condições de renovação",
+          "serão detalhadas na proposta comercial ou anexo específico.",
+          "",
+          "### CLÁUSULA 3 – DA REMUNERAÇÃO E FORMA DE PAGAMENTO",
+          "",
+          textoRemuneracao,
+          "",
+          "3.1. Os pagamentos serão efetuados mediante emissão de documento fiscal idôneo pela CONTRATADA, observando-se as normas tributárias vigentes.",
+          "",
+          "3.2. Em caso de atraso superior a 15 (quinze) dias no pagamento, a CONTRATADA poderá suspender a execução dos serviços até a regularização,",
+          "sem prejuízo da incidência de juros, correção monetária e demais penalidades previstas em lei.",
+          "",
+          "### CLÁUSULA 4 – DAS RESPONSABILIDADES DAS PARTES",
+          "",
+          "4.1. Compete à CONTRATADA:",
+          "",
+          "- Executar os serviços com observância das normas técnicas aplicáveis e da legislação vigente;",
+          "- Manter sigilo sobre informações técnicas, comerciais e estratégicas obtidas em função da execução do contrato;",
+          "- Esclarecer à CONTRATANTE os limites de sua atuação enquanto consultoria técnica, não assumindo responsabilidades operacionais diretas da empresa.",
+          "",
+          "4.2. Compete à CONTRATANTE:",
+          "",
+          "- Fornecer informações verdadeiras e completas sobre a operação e os ambientes avaliados;",
+          "- Garantir acesso às áreas, documentos e colaboradores necessários à execução dos serviços;",
+          "- Implementar, sob sua responsabilidade, as ações recomendadas, inclusive aquelas que dependam de decisões gerenciais e investimentos.",
+          "",
+          "### CLÁUSULA 5 – DA RESCISÃO",
+          "",
+          "5.1. O presente contrato poderá ser rescindido por qualquer das partes, mediante aviso prévio por escrito de, no mínimo, 30 (trinta) dias,",
+          "sem prejuízo da cobrança dos serviços já prestados até a data da rescisão.",
+          "",
+          "5.2. Constituem motivo para rescisão imediata:",
+          "",
+          "- Descumprimento grave das obrigações aqui previstas;",
+          "- Utilização inadequada ou indevida dos relatórios e pareceres técnicos, em desacordo com sua finalidade.",
+          "",
+          "### CLÁUSULA 6 – DO FORO",
+          "",
+          `6.1. Para dirimir quaisquer dúvidas oriundas deste contrato, as partes elegem o foro da comarca de ${localEmpresa},`,
+          "com renúncia a qualquer outro, por mais privilegiado que seja.",
+          "",
+          "",
+          `E, por estarem assim justas e contratadas, firmam o presente instrumento em 2 (duas) vias de igual teor e forma.`,
+          "",
+          `${localEmpresa}, ${dia} de ${mesNome} de ${ano}.`,
+          "",
+          "",
+          "__________________________________________",
+          `CONTRATANTE: ${nomeEmpresa}`,
+          "",
+          "__________________________________________",
+          `CONTRATADA: ${consultorNome} – ${consultorDoc}`
+        ].join("\n");
+
+        document.getElementById("jh-contrato").value = contrato;
+      }
+
+      function copyTextarea(id) {
+        const ta = document.getElementById(id);
+        if (!ta || !ta.value.trim()) return;
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        try {
+          document.execCommand("copy");
+        } catch (e) {
+          console.warn("Falha ao copiar. Selecione e copie manualmente.", e);
+        }
+      }
+
+      document.getElementById("jh-generate")?.addEventListener("click", gerarOrcamentoEContrato);
+      document.getElementById("jh-copy")?.addEventListener("click", function () {
+        copyTextarea("jh-markdown");
+      });
+      document.getElementById("jh-copy-contrato")?.addEventListener("click", function () {
+        copyTextarea("jh-contrato");
+      });
+    })();
+  </script>
+</body>
+</html>

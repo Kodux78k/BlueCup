@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Costa&Ribeiro Ateliê · Infodose Custo & Preço</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    /* MOBILE-FIRST VERTICAL HARD-LOCK */
+    :root {
+      --nebula-grad-a: #f0f;
+      --nebula-grad-b: #0ff;
+      --kob-bg: #020812;
+      --kob-panel: #050d18;
+      --kob-ink: #eafcff;
+      --kob-muted: #8ac7dd;
+      --kob-accent: #00ffd0;
+      --kob-accent-soft: rgba(0, 255, 208, 0.16);
+      --kob-danger: #ff4b81;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.6);
+      --shadow-chip: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      --gap: 14px;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at top, rgba(240, 0, 255, 0.2), transparent 55%),
+        radial-gradient(circle at bottom, rgba(0, 255, 255, 0.18), transparent 55%),
+        var(--kob-bg);
+      color: var(--kob-ink);
+      font-family: var(--font-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+    }
+
+    .cr-shell {
+      width: 100%;
+      max-width: 480px;
+      padding: 18px 16px 40px;
+    }
+
+    .cr-card {
+      background:
+        linear-gradient(135deg, rgba(240, 0, 255, 0.12), rgba(0, 255, 255, 0.06)),
+        var(--kob-panel);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      padding: 18px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .cr-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cr-badge {
+      align-self: flex-start;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--kob-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cr-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #0ff, #00ffd0);
+      box-shadow: 0 0 8px rgba(0, 255, 208, 0.8);
+    }
+
+    .cr-title {
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+    .cr-subtitle {
+      font-size: 13px;
+      color: var(--kob-muted);
+      line-height: 1.5;
+    }
+
+    .cr-section {
+      padding: 12px 10px;
+      border-radius: 18px;
+      background: rgba(2, 8, 18, 0.66);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .cr-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--kob-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cr-section-title span {
+      font-size: 10px;
+    }
+
+    .cr-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .cr-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cr-label-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--kob-muted);
+    }
+
+    .cr-label-main {
+      font-weight: 500;
+      color: var(--kob-ink);
+    }
+
+    .cr-label-hint {
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    .cr-input,
+    .cr-textarea,
+    .cr-select {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 10px 12px;
+      font-size: 13px;
+      background: rgba(1, 7, 16, 0.92);
+      color: var(--kob-ink);
+      outline: none;
+      box-shadow: var(--shadow-chip);
+    }
+
+    .cr-input::placeholder,
+    .cr-textarea::placeholder {
+      color: rgba(138, 199, 221, 0.75);
+    }
+
+    .cr-input:focus,
+    .cr-textarea:focus,
+    .cr-select:focus {
+      border-color: var(--kob-accent);
+      box-shadow: 0 0 0 1px rgba(0, 255, 208, 0.4);
+    }
+
+    .cr-input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .cr-input::-webkit-outer-spin-button,
+    .cr-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .cr-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: 30px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #0ff 50%),
+        linear-gradient(135deg, #0ff 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 14px,
+        calc(100% - 12px) 14px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .cr-row-inline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .cr-highlight {
+      font-size: 18px;
+      font-weight: 650;
+      background: linear-gradient(135deg, #0ff, #f0f);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .cr-summary-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+
+    .cr-summary-line:last-child {
+      border-bottom: none;
+    }
+
+    .cr-summary-label {
+      color: var(--kob-muted);
+    }
+
+    .cr-summary-value {
+      font-weight: 500;
+    }
+
+    .cr-textarea {
+      border-radius: 14px;
+      min-height: 160px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      line-height: 1.45;
+    }
+
+    .cr-btn-main {
+      width: 100%;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background:
+        radial-gradient(circle at top left, rgba(240, 0, 255, 0.7), transparent 50%),
+        radial-gradient(circle at bottom right, rgba(0, 255, 255, 0.7), transparent 50%),
+        linear-gradient(135deg, #f0f, #0ff);
+      color: #020812;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .cr-btn-main span.icon {
+      font-size: 15px;
+    }
+
+    .cr-btn-secondary {
+      width: 100%;
+      margin-top: 6px;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid rgba(0, 255, 208, 0.5);
+      background: rgba(2, 8, 18, 0.85);
+      color: var(--kob-ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .cr-btn-secondary span.icon {
+      font-size: 14px;
+    }
+
+    .cr-note {
+      font-size: 11px;
+      color: var(--kob-muted);
+      line-height: 1.4;
+    }
+
+    .cr-note strong {
+      color: var(--kob-ink);
+    }
+
+    @media (min-width: 520px) {
+      .cr-card {
+        padding: 20px 18px 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="cr-shell" id="cr-infodose-costa">
+    <div class="cr-card">
+      <header class="cr-header">
+        <div class="cr-badge">
+          <span class="cr-badge-dot"></span>
+          Infodose · Costa&Ribeiro Ateliê
+        </div>
+        <h1 class="cr-title">Calculadora de Custo & Preço por Peça</h1>
+        <p class="cr-subtitle">
+          Pensado para moda autoral: você preenche os custos por peça e o app sugere
+          preços mínimos, sugeridos e premium, já com resumo <strong>Markdown</strong>
+          para registro no Livro Vivo / Infod0x.
+        </p>
+      </header>
+
+      <!-- DADOS DA PEÇA -->
+      <section class="cr-section">
+        <div class="cr-section-title">
+          <span>●</span> Dados da peça
+        </div>
+        <div class="cr-grid">
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Nome da peça</span>
+              <span class="cr-label-hint">Como sai no catálogo</span>
+            </div>
+            <input
+              id="cr-nome-peca"
+              class="cr-input"
+              type="text"
+              placeholder="Ex: Vestido Midi Luna"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Categoria</span>
+              <span class="cr-label-hint">Opcional, só para organização</span>
+            </div>
+            <select id="cr-categoria" class="cr-select">
+              <option value="">Selecione (opcional)</option>
+              <option value="Blusa">Blusa</option>
+              <option value="Camiseta">Camiseta</option>
+              <option value="Vestido curto">Vestido curto</option>
+              <option value="Vestido longo">Vestido longo</option>
+              <option value="Saia">Saia</option>
+              <option value="Calça">Calça</option>
+              <option value="Conjunto">Conjunto</option>
+              <option value="Acessório">Acessório</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Quantidade do lote (peças)</span>
+              <span class="cr-label-hint">Para ver custo total do lote</span>
+            </div>
+            <input
+              id="cr-qtd-lote"
+              class="cr-input"
+              type="number"
+              step="1"
+              min="1"
+              value="10"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- MATERIAL PRINCIPAL -->
+      <section class="cr-section">
+        <div class="cr-section-title">
+          <span>●</span> Material principal (tecido)
+        </div>
+        <div class="cr-grid">
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Nome do tecido</span>
+              <span class="cr-label-hint">Viscose, linho, malha penteada...</span>
+            </div>
+            <input
+              id="cr-material-nome"
+              class="cr-input"
+              type="text"
+              placeholder="Ex: Viscose premium estampada"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Quantidade comprada (m)</span>
+              <span class="cr-label-hint">Rolo / compra do tecido</span>
+            </div>
+            <input
+              id="cr-material-qtd-total"
+              class="cr-input"
+              type="number"
+              step="0.1"
+              placeholder="Ex: 20"
+              value="10"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Valor por metro (R$)</span>
+              <span class="cr-label-hint">Custo do fornecedor</span>
+            </div>
+            <input
+              id="cr-material-valor-metro"
+              class="cr-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 35,90"
+              value="35.9"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Quantidade por peça (m)</span>
+              <span class="cr-label-hint">Quanto vai em cada peça</span>
+            </div>
+            <input
+              id="cr-material-qtd-peca"
+              class="cr-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 1,4"
+              value="1.4"
+            />
+          </div>
+
+          <div class="cr-grid">
+            <div class="cr-summary-line">
+              <span class="cr-summary-label">Valor de material por peça</span>
+              <span id="cr-out-material-por-peca" class="cr-summary-value">R$ 0,00</span>
+            </div>
+            <div class="cr-summary-line">
+              <span class="cr-summary-label">Peças possíveis com esse tecido (aprox.)</span>
+              <span id="cr-out-pecas-possiveis" class="cr-summary-value">0</span>
+            </div>
+          </div>
+
+          <p class="cr-note">
+            Se tiver mais de um tecido, renda ou forro, você pode somar manualmente
+            os valores por peça depois ou duplicar este app para compor os custos.
+          </p>
+        </div>
+      </section>
+
+      <!-- CUSTOS ADICIONAIS POR PEÇA -->
+      <section class="cr-section">
+        <div class="cr-section-title">
+          <span>●</span> Custos adicionais por peça
+        </div>
+        <div class="cr-grid">
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Custo de produção (costureira)</span>
+              <span class="cr-label-hint">Valor pago por peça</span>
+            </div>
+            <input
+              id="cr-custo-producao"
+              class="cr-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 40,00"
+              value="40"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Aviamentos por peça</span>
+              <span class="cr-label-hint">Botões, zíper, linha, renda...</span>
+            </div>
+            <input
+              id="cr-aviamentos"
+              class="cr-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 8,50"
+              value="8.5"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Frete / transporte por peça</span>
+              <span class="cr-label-hint">Média (frete do lote ÷ nº de peças)</span>
+            </div>
+            <input
+              id="cr-frete"
+              class="cr-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 4,00"
+              value="4"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Custo de embalagem</span>
+              <span class="cr-label-hint">Saquinho, caixa, seda...</span>
+            </div>
+            <input
+              id="cr-embalagem"
+              class="cr-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 5,00"
+              value="5"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Despesas extras</span>
+              <span class="cr-label-hint">Taxas, maquininha, pequeno desperdício</span>
+            </div>
+            <input
+              id="cr-extras"
+              class="cr-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 3,00"
+              value="3"
+            />
+          </div>
+
+          <div class="cr-field">
+            <div class="cr-label-line">
+              <span class="cr-label-main">Custo de etiquetas por peça</span>
+              <span class="cr-label-hint">Marca, composição, tamanho...</span>
+            </div>
+            <input
+              id="cr-etiqueta"
+              class="cr-input"
+              type="number"
+              step="0.01"
+              placeholder="Ex: 2,50"
+              value="2.5"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- RESUMO DE CUSTOS -->
+      <section class="cr-section">
+        <div class="cr-section-title">
+          <span>●</span> Resumo de custos
+        </div>
+        <div class="cr-grid">
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">Material por peça</span>
+            <span id="cr-out-custo-material" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">Produção (costureira)</span>
+            <span id="cr-out-custo-producao" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">Aviamentos</span>
+            <span id="cr-out-custo-aviamentos" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">Frete / transporte</span>
+            <span id="cr-out-custo-frete" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">Embalagem</span>
+            <span id="cr-out-custo-embalagem" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">Etiquetas</span>
+            <span id="cr-out-custo-etiqueta" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">Despesas extras</span>
+            <span id="cr-out-custo-extras" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label"><strong>Custo total por peça</strong></span>
+            <span id="cr-out-custo-total" class="cr-summary-value cr-highlight">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">Custo total do lote (aprox.)</span>
+            <span id="cr-out-custo-lote" class="cr-summary-value">R$ 0,00</span>
+          </div>
+        </div>
+        <p class="cr-note">
+          O custo por peça considera tudo o que você preencheu acima.  
+          A partir dele, o app sugere três faixas de preço para o consumidor final.
+        </p>
+      </section>
+
+      <!-- SUGESTÕES DE PREÇO -->
+      <section class="cr-section">
+        <div class="cr-section-title">
+          <span>●</span> Sugestões de preço para consumidor
+        </div>
+        <div class="cr-grid">
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">
+              Essencial (x2,2 · margem ~54%)
+            </span>
+            <span id="cr-out-preco-essencial" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">
+              Sugerido Infodose (x2,7 · margem ~63%)
+            </span>
+            <span id="cr-out-preco-sugerido" class="cr-summary-value">R$ 0,00</span>
+          </div>
+          <div class="cr-summary-line">
+            <span class="cr-summary-label">
+              Premium de coleção (x3,2 · margem ~69%)
+            </span>
+            <span id="cr-out-preco-premium" class="cr-summary-value">R$ 0,00</span>
+          </div>
+        </div>
+        <p class="cr-note">
+          Esses multiplicadores são um <strong>preset base</strong> para moda autoral
+          (baixo volume, cuidado manual, risco criativo).  
+          Você pode usar o Essencial como piso, o Sugerido como padrão e o Premium
+          para peças limitadas / coleções especiais.
+        </p>
+      </section>
+
+      <!-- ANOTAÇÕES -->
+      <section class="cr-section">
+        <div class="cr-section-title">
+          <span>●</span> Anotações internas
+        </div>
+        <div class="cr-grid">
+          <textarea
+            id="cr-anotacoes"
+            class="cr-textarea"
+            placeholder="Anotações sobre modelagem, grade, ajustes de preço, feedback de clientes..."
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- MARKDOWN RESUMO -->
+      <section class="cr-section">
+        <div class="cr-section-title">
+          <span>●</span> Resumo em Markdown · Livro Vivo / Infod0x
+        </div>
+        <div class="cr-grid">
+          <textarea
+            id="cr-markdown"
+            class="cr-textarea"
+            placeholder="Toque em &quot;Gerar resumo em Markdown&quot; para criar a ficha automaticamente."
+          ></textarea>
+          <button id="cr-copy" class="cr-btn-secondary" type="button">
+            <span class="icon">📋</span> Copiar resumo (Markdown)
+          </button>
+        </div>
+      </section>
+
+      <!-- BOTÃO PRINCIPAL -->
+      <button id="cr-generate" class="cr-btn-main" type="button">
+        <span class="icon">⚡️</span>
+        <span>Gerar resumo em Markdown (Infodose)</span>
+      </button>
+
+      <p class="cr-note">
+        Salve este arquivo como <strong>.html</strong>, abra no navegador e cole o Markdown
+        gerado direto no seu Livro Vivo / Infod0x. Sempre único, sempre seu. 💚
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const MKP_ESSENCIAL = 2.2;
+      const MKP_SUGERIDO = 2.7;
+      const MKP_PREMIUM  = 3.2;
+
+      function parseNumber(id) {
+        const el = document.getElementById(id);
+        if (!el) return 0;
+        const v = parseFloat(String(el.value).replace(",", "."));
+        return isNaN(v) ? 0 : v;
+      }
+
+      function formatBR(value) {
+        return value.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        });
+      }
+
+      function collectState() {
+        const nomePeca   = (document.getElementById("cr-nome-peca").value || "").trim() || "Peça Costa&Ribeiro";
+        const categoria  = (document.getElementById("cr-categoria").value || "").trim();
+        const qtdLote    = parseNumber("cr-qtd-lote") || 0;
+
+        const materialNome      = (document.getElementById("cr-material-nome").value || "").trim() || "Tecido principal";
+        const materialQtdTotal  = parseNumber("cr-material-qtd-total");
+        const materialValorMet  = parseNumber("cr-material-valor-metro");
+        const materialQtdPeca   = parseNumber("cr-material-qtd-peca");
+
+        const custoProducao = parseNumber("cr-custo-producao");
+        const aviamentos    = parseNumber("cr-aviamentos");
+        const frete         = parseNumber("cr-frete");
+        const embalagem     = parseNumber("cr-embalagem");
+        const extras        = parseNumber("cr-extras");
+        const etiqueta      = parseNumber("cr-etiqueta");
+
+        const materialPorPeca = materialValorMet * materialQtdPeca;
+        const pecasPossiveis  = materialQtdPeca > 0 ? Math.floor(materialQtdTotal / materialQtdPeca) : 0;
+
+        const custoTotal =
+          materialPorPeca +
+          custoProducao +
+          aviamentos +
+          frete +
+          embalagem +
+          extras +
+          etiqueta;
+
+        const custoLote = qtdLote > 0 ? custoTotal * qtdLote : 0;
+
+        const precoEssencial = custoTotal * MKP_ESSENCIAL;
+        const precoSugerido  = custoTotal * MKP_SUGERIDO;
+        const precoPremium   = custoTotal * MKP_PREMIUM;
+
+        const anotacoes = (document.getElementById("cr-anotacoes").value || "").trim();
+
+        return {
+          nomePeca,
+          categoria,
+          qtdLote,
+          materialNome,
+          materialQtdTotal,
+          materialValorMet,
+          materialQtdPeca,
+          materialPorPeca,
+          pecasPossiveis,
+          custoProducao,
+          aviamentos,
+          frete,
+          embalagem,
+          extras,
+          etiqueta,
+          custoTotal,
+          custoLote,
+          precoEssencial,
+          precoSugerido,
+          precoPremium,
+          anotacoes
+        };
+      }
+
+      function updateUI() {
+        const s = collectState();
+
+        // Material section
+        document.getElementById("cr-out-material-por-peca").textContent =
+          formatBR(s.materialPorPeca);
+        document.getElementById("cr-out-pecas-possiveis").textContent =
+          s.pecasPossiveis.toString();
+
+        // Custo section
+        document.getElementById("cr-out-custo-material").textContent   = formatBR(s.materialPorPeca);
+        document.getElementById("cr-out-custo-producao").textContent   = formatBR(s.custoProducao);
+        document.getElementById("cr-out-custo-aviamentos").textContent = formatBR(s.aviamentos);
+        document.getElementById("cr-out-custo-frete").textContent      = formatBR(s.frete);
+        document.getElementById("cr-out-custo-embalagem").textContent  = formatBR(s.embalagem);
+        document.getElementById("cr-out-custo-etiqueta").textContent   = formatBR(s.etiqueta);
+        document.getElementById("cr-out-custo-extras").textContent     = formatBR(s.extras);
+        document.getElementById("cr-out-custo-total").textContent      = formatBR(s.custoTotal);
+        document.getElementById("cr-out-custo-lote").textContent       = formatBR(s.custoLote);
+
+        // Preços sugeridos
+        document.getElementById("cr-out-preco-essencial").textContent = formatBR(s.precoEssencial);
+        document.getElementById("cr-out-preco-sugerido").textContent  = formatBR(s.precoSugerido);
+        document.getElementById("cr-out-preco-premium").textContent   = formatBR(s.precoPremium);
+
+        return s;
+      }
+
+      function gerarMarkdown() {
+        const s = updateUI();
+
+        const titulo = `Costa&Ribeiro Ateliê · Ficha de Custo – ${s.nomePeca}`;
+
+        const categoriaLinha = s.categoria
+          ? `Categoria: **${s.categoria}**`
+          : "Categoria: (não definida)";
+
+        const tabelaCustos = [
+          "| Item | Valor por peça |",
+          "|------|----------------|",
+          `| Material principal (${s.materialNome}) | ${formatBR(s.materialPorPeca)} |`,
+          `| Produção (costureira) | ${formatBR(s.custoProducao)} |`,
+          `| Aviamentos | ${formatBR(s.aviamentos)} |`,
+          `| Frete / transporte | ${formatBR(s.frete)} |`,
+          `| Embalagem | ${formatBR(s.embalagem)} |`,
+          `| Etiquetas | ${formatBR(s.etiqueta)} |`,
+          `| Despesas extras | ${formatBR(s.extras)} |`,
+          `| **Custo total por peça** | **${formatBR(s.custoTotal)}** |`
+        ].join("\n");
+
+        const resumoLote =
+          s.qtdLote > 0
+            ? `- Quantidade do lote: **${s.qtdLote}** peça(s)  
+- Custo total aproximado do lote: **${formatBR(s.custoLote)}**`
+            : "- Quantidade do lote: a definir\n- Custo total do lote: depende da quantidade";
+
+        const resumoTecido =
+          s.pecasPossiveis > 0
+            ? `- ${formatBR(s.materialValorMet)} / m  
+- Quantidade comprada: **${s.materialQtdTotal.toString().replace(".", ",")} m**  
+- Quantidade por peça: **${s.materialQtdPeca.toString().replace(".", ",")} m**  
+- Peças possíveis com esse tecido: **${s.pecasPossiveis} (aprox.)**`
+            : "- Dados de tecido ainda incompletos para estimar quantidade de peças.";
+
+        const blocoAnotacoes = s.anotacoes
+          ? s.anotacoes
+          : "_(adicione aqui observações sobre modelagem, grade, variações de cor, etc.)_";
+
+        const md = [
+          `# ${titulo}`,
+          "",
+          "## 1. Identificação da peça",
+          "",
+          `- Nome da peça: **${s.nomePeca}**`,
+          `- ${categoriaLinha}`,
+          "",
+          "::info",
+          "Esta ficha foi gerada pelo módulo **Infodose – Costa&Ribeiro** para registrar custo e preço por peça.  
+Use como base viva: ajuste, regrave, atualize sempre que a realidade mudar.",
+          "::",
+          "",
+          "## 2. Tecido principal",
+          "",
+          `- Material: **${s.materialNome}**`,
+          resumoTecido,
+          "",
+          "## 3. Custos por peça",
+          "",
+          tabelaCustos,
+          "",
+          resumoLote,
+          "",
+          "## 4. Sugestões de preço para o consumidor",
+          "",
+          "::success",
+          `- **Preço Essencial (x2,2 · margem ~54%)**: ${formatBR(s.precoEssencial)}`,
+          `- **Preço Sugerido Infodose (x2,7 · margem ~63%)**: ${formatBR(s.precoSugerido)}`,
+          `- **Preço Premium de Coleção (x3,2 · margem ~69%)**: ${formatBR(s.precoPremium)}`,
+          "::",
+          "",
+          "Use assim:",
+          "",
+          "- Essencial → piso para não vender abaixo do mínimo saudável;",
+          "- Sugerido → preço padrão de varejo autoral, equilibrando desejo e margem;",
+          "- Premium → peças limitadas, coleções cápsula, atendimento ultra personalizado.",
+          "",
+          "## 5. Comentários e decisões de preço",
+          "",
+          blocoAnotacoes,
+          "",
+          "> Documento vivo Infodose · ajuste tudo que precisar, quando precisar. Sempre único, sempre seu."
+        ].join("\n");
+
+        document.getElementById("cr-markdown").value = md;
+      }
+
+      function copyMarkdown() {
+        const ta = document.getElementById("cr-markdown");
+        if (!ta || !ta.value.trim()) return;
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        try {
+          document.execCommand("copy");
+        } catch (e) {
+          console.warn("Falha ao copiar. Selecione e copie manualmente.", e);
+        }
+      }
+
+      // Eventos
+      const inputs = document.querySelectorAll(
+        "#cr-infodose-costa .cr-input, #cr-infodose-costa .cr-select"
+      );
+      inputs.forEach((el) => {
+        el.addEventListener("input", updateUI);
+      });
+
+      document.getElementById("cr-generate")?.addEventListener("click", gerarMarkdown);
+      document.getElementById("cr-copy")?.addEventListener("click", copyMarkdown);
+
+      // Inicializa com presets
+      updateUI();
+    })();
+  </script>
+</body>
+</html>
