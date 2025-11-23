@@ -1,0 +1,3706 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <title>BlueCup • Infodose Local Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+  <!-- PWA basics (opcional) -->
+  <meta name="theme-color" content="#050510" id="metaThemeColor"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+  <style>
+    /* MOBILE-FIRST VERTICAL HARD-LOCK */
+    :root{
+      --bg:#050510;
+      --bg-elev:#0a0a1c;
+      --bg-soft:#0f0f28;
+      --stroke:rgba(255,255,255,.08);
+      --glass:rgba(10,12,30,.72);
+      --txt:#e9ecff;
+      --muted:rgba(233,236,255,.7);
+
+      /* Nebula Pro */
+      --nebula-a:#ff00ff;
+      --nebula-b:#00ffff;
+
+      /* Base Madeira */
+      --wood:#5CFF9D;
+      --wood-soft:rgba(92,255,157,.18);
+
+      --radius:18px;
+      --tap:48px;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Inter, Arial, sans-serif;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 800px at 120% -10%, rgba(255,0,255,.22), transparent 60%),
+        radial-gradient(1200px 800px at -20% 110%, rgba(0,255,255,.18), transparent 60%),
+        linear-gradient(42deg, #120022, #001a22 65%, #020416);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    header{
+      position:sticky; top:0; z-index:10;
+      background:linear-gradient(180deg, rgba(5,5,16,.95), rgba(5,5,16,.7) 70%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom:1px solid var(--stroke);
+      padding:12px 14px 10px;
+    }
+    .headrow{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:800; letter-spacing:.5px;
+    }
+    .cup{
+      width:38px; height:38px; border-radius:12px;
+      background: radial-gradient(circle at 30% 25%, #fff, #ddd 15%, transparent 16%),
+                  radial-gradient(circle at 65% 70%, rgba(92,255,157,.9), transparent 55%),
+                  conic-gradient(from 120deg, var(--nebula-a), var(--nebula-b), var(--nebula-a));
+      box-shadow:0 0 18px rgba(0,255,255,.35), 0 0 22px rgba(255,0,255,.25);
+      display:grid; place-items:center; font-size:18px;
+      border:1px solid rgba(255,255,255,.12);
+      cursor:pointer;
+    }
+    .status{
+      font-size:12px; color:var(--muted);
+      display:flex; align-items:center; gap:6px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:99px;background:#888;
+      box-shadow:0 0 10px rgba(255,255,255,.2);
+    }
+    .dot.on{ background:var(--wood); box-shadow:0 0 12px var(--wood); }
+
+    main{
+      padding:12px 12px calc(20px + var(--safe-b));
+      display:flex; flex-direction:column; gap:12px;
+      max-width:900px; margin:0 auto;
+    }
+
+    .card{
+      background:var(--glass);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:0 12px 40px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+
+    details{ display:block; }
+    summary{
+      list-style:none; cursor:pointer; user-select:none;
+      padding:14px 14px;
+      font-weight:800; letter-spacing:.4px;
+      display:flex; align-items:center; justify-content:space-between;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+      min-height:var(--tap);
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .chev{ opacity:.7; font-size:14px; }
+
+    .section{
+      padding:12px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+
+    /* CHAT */
+    .chatBox{
+      background:rgba(0,0,0,.25);
+      border:1px solid var(--stroke);
+      border-radius:14px;
+      padding:10px;
+      min-height:220px;
+      max-height:55vh;
+      overflow:auto;
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .msg{
+      padding:10px 12px;
+      border-radius:14px;
+      max-width:95%;
+      white-space:pre-wrap;
+      line-height:1.35;
+      font-size:15px;
+      border:1px solid transparent;
+    }
+    .msg.you{
+      align-self:flex-end;
+      background:rgba(92,255,157,.10);
+      border-color:var(--wood-soft);
+      box-shadow:0 0 0 1px rgba(92,255,157,.12) inset;
+    }
+    .msg.bot{
+      align-self:flex-start;
+      background:rgba(27,228,255,.08);
+      border-color:rgba(27,228,255,.16);
+    }
+    .msg.sys{
+      align-self:center;
+      font-size:12px; color:var(--muted);
+      background:transparent; border:none; padding:2px 0;
+    }
+
+    .inputRow{
+      display:flex; flex-direction:column; gap:8px;
+    }
+    textarea#chatInput{
+      width:100%; min-height:56px; max-height:160px;
+      background:var(--bg-soft); color:var(--txt);
+      border:1px solid var(--stroke); border-radius:14px;
+      padding:12px 12px; font-size:16px; outline:none;
+      resize:vertical;
+    }
+    .btnRow{
+      display:flex; gap:8px; flex-wrap:nowrap; overflow-x:auto;
+    }
+    button{
+      min-height:var(--tap);
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      color:var(--txt);
+      padding:0 12px;
+      font-weight:700; letter-spacing:.3px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    button.primary{
+      border-color:rgba(92,255,157,.35);
+      box-shadow:0 0 0 1px rgba(92,255,157,.16) inset, 0 0 16px rgba(92,255,157,.18);
+    }
+    button:disabled{
+      opacity:.5; cursor:not-allowed;
+    }
+
+    /* TRÍADES */
+    .orb{
+      width:140px; height:140px; border-radius:999px;
+      margin:4px auto 6px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.9), transparent 28%),
+        conic-gradient(from 90deg, var(--nebula-a), var(--wood), var(--nebula-b), var(--nebula-a));
+      box-shadow:0 0 30px rgba(0,255,255,.35), 0 0 30px rgba(255,0,255,.25);
+      display:grid; place-items:center;
+      animation: spin 9s linear infinite;
+      border:1px solid rgba(255,255,255,.16);
+      cursor:pointer;
+      position:relative;
+    }
+    .orb::after{
+      content:"";
+      position:absolute; inset:-10px; border-radius:999px;
+      background:radial-gradient(circle, rgba(92,255,157,.20), transparent 60%);
+      animation:pulse 2.4s ease-in-out infinite;
+      z-index:-1;
+    }
+    @keyframes spin{ to{ transform:rotate(360deg);} }
+    @keyframes pulse{ 50%{ transform:scale(1.06); opacity:.6;} }
+
+    .triadOut{
+      text-align:center; font-size:22px; font-weight:800;
+      letter-spacing:2px;
+      padding:8px; border-radius:12px;
+      background:rgba(0,0,0,.25);
+      border:1px dashed var(--stroke);
+    }
+
+    /* STACKS */
+    .stackList{ display:flex; flex-direction:column; gap:8px; }
+    .stackItem{
+      padding:10px 12px; border-radius:12px;
+      background:rgba(0,0,0,.25); border:1px solid var(--stroke);
+      display:flex; flex-direction:column; gap:4px;
+    }
+    .stackItem .title{ font-weight:800; }
+    .stackItem .meta{ font-size:12px;color:var(--muted); }
+
+    /* DEV PANEL */
+    .field{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .field input, .field select, .field textarea{
+      width:100%;
+      background:var(--bg-soft); color:var(--txt);
+      border:1px solid var(--stroke); border-radius:12px;
+      padding:10px 12px; font-size:15px; outline:none;
+    }
+    .field textarea{ min-height:90px; resize:vertical; }
+
+    .tiny{
+      font-size:12px; color:var(--muted);
+    }
+
+    .row2{
+      display:block; /* hard-lock vertical */
+    }
+  
+
+/* ====================================================================== */
+/* RENDER RICO + BOTÕES COPY/LISTEN (override BlueCup)                     */
+/* ====================================================================== */
+.chat-message{
+  position:relative;
+  padding:1rem 1.1rem 1.3rem;
+  background:rgba(27,228,255,.08);
+  border:1px solid rgba(27,228,255,.16);
+  border-radius:14px;
+  line-height:1.6;
+  color:var(--txt);
+  font-size:15px;
+  white-space:normal;
+}
+.chat-message.you{
+  background:rgba(92,255,157,.10);
+  border-color:var(--wood-soft);
+  box-shadow:0 0 0 1px rgba(92,255,157,.12) inset;
+}
+.chat-message.sys{
+  background:transparent;
+  border:none;
+  font-size:12px;
+  color:var(--muted);
+  padding:2px 0;
+}
+.chat-message pre{
+  background:#0b0b10;
+  color:#e6e6e6;
+  padding:0.9rem;
+  border-radius:10px;
+  overflow-x:auto;
+  font-family:"Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  margin:.6rem 0;
+  font-size:.88rem;
+  border:1px solid rgba(255,255,255,.08);
+}
+.chat-message code{
+  background:#0b0b10;
+  color:#d8f3ff;
+  padding:0.12rem 0.35rem;
+  border-radius:6px;
+  font-family:"Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  font-size:.88rem;
+  border:1px solid rgba(255,255,255,.06);
+}
+.chat-message blockquote{
+  margin:.4rem 0;
+  padding:.5rem .75rem;
+  border-left:3px solid var(--accent, #1be4ff);
+  background:rgba(255,255,255,.03);
+  border-radius:8px;
+  color:var(--txt);
+}
+
+/* Callouts ::info ::aside ::success ::warn ::question */
+.callout{
+  margin:.6rem 0;
+  padding:.65rem .8rem;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.04);
+}
+.callout.info{ border-color:rgba(27,228,255,.4); background:rgba(27,228,255,.08); }
+.callout.aside{ border-color:rgba(255,0,255,.35); background:rgba(255,0,255,.06); }
+.callout.success{ border-color:rgba(92,255,157,.5); background:rgba(92,255,157,.08); }
+.callout.warn{ border-color:rgba(255,166,66,.5); background:rgba(255,166,66,.08); }
+.callout.question{ border-color:rgba(160,122,255,.5); background:rgba(160,122,255,.08); }
+.callout .callout-title{
+  font-weight:800; letter-spacing:.3px; font-size:12px; opacity:.9;
+  text-transform:uppercase; margin-bottom:.35rem;
+}
+
+.chat-message .copy-btn,
+.chat-message .listen-btn{
+  position:absolute; top:0.35rem; right:0.35rem;
+  width:28px; height:28px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(5,5,16,.9);
+  box-shadow:0 4px 10px rgba(0,0,0,.35);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:0.8rem; color:var(--txt);
+  cursor:pointer; padding:0; outline:none;
+}
+.chat-message .listen-btn{ right:2.85rem; }
+.chat-message .copy-btn::before{ content:"⧉"; }
+.chat-message .listen-btn::before{ content:"🔊"; }
+
+
+/* ====================================================================== */
+/* Voice blocks (Gerardo MD)                                               */
+/* ====================================================================== */
+.voice-block{
+  margin:.45rem 0;
+  padding:.5rem .7rem;
+  border-left:3px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.02);
+  border-radius:8px;
+}
+.voice-block .voice-tag{
+  font-weight:900; letter-spacing:.08em; font-size:11px; text-transform:uppercase;
+  opacity:.9; margin-bottom:.25rem; display:block;
+  color:var(--accent,#1be4ff);
+}
+.voice-block.speaking{
+  border-left-color:var(--wood,#5cff9d);
+  box-shadow:0 0 0 1px rgba(92,255,157,.18) inset;
+  background:rgba(92,255,157,.04);
+}
+
+
+/* ---- Arch Voz Theme ---- */
+
+:root{
+  --kob-voice-primary:   #00d8d8;
+  --kob-voice-secondary: #d800d8;
+  --kob-voice-accent:    #ffffff;
+  --kob-voice-bg-soft:   rgba(0,216,216,0.08);
+  --kob-voice-glow:      0 0 18px rgba(0,216,216,0.55);
+}
+
+/* Dock de TTS (já existe no teu app, só estilizamos) */
+.kob-tts-dock{
+  background: var(--kob-voice-bg-soft);
+  box-shadow: var(--kob-voice-glow);
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.kob-tts-dock button[data-tts-btn="toggle"]{
+  border: 1px solid var(--kob-voice-primary);
+  color:  var(--kob-voice-accent);
+}
+
+.kob-tts-dock button[data-tts-btn="sel"],
+.kob-tts-dock button[data-tts-btn="stop"]{
+  border: 1px solid rgba(255,255,255,0.16);
+}
+
+/* Se no futuro você marcar um bloco como "sendo lido" */
+[data-being-read="true"]{
+  outline: 1px solid var(--kob-voice-primary);
+  background: var(--kob-voice-bg-soft);
+}
+
+/* Temas por arquétipo (opcional, pra animar o body) */
+body[data-voice-arch="kobllux"]{
+  --kob-voice-primary:#00d8d8;
+  --kob-voice-secondary:#d800d8;
+}
+body[data-voice-arch="uno"]{
+  --kob-voice-primary:#ffffff;
+  --kob-voice-secondary:#bbbbbb;
+}
+body[data-voice-arch="minuz"]{
+  --kob-voice-primary:#FF3366;
+  --kob-voice-secondary:#111111;
+}
+body[data-voice-arch="kodux"]{
+  --kob-voice-primary:#FF6FB5;
+  --kob-voice-secondary:#5B2C6F;
+}
+body[data-voice-arch="nova"]{
+  --kob-voice-primary:#FF6FB5;
+  --kob-voice-secondary:#FFD6E8;
+}
+body[data-voice-arch="kaos"]{
+  --kob-voice-primary:#FF5C8A;
+  --kob-voice-secondary:#3D000F;
+}
+body[data-voice-arch="serena"]{
+  --kob-voice-primary:#7AD3A8;
+  --kob-voice-secondary:#154734;
+}
+body[data-voice-arch="atlas"]{
+  --kob-voice-primary:#6CCFF6;
+  --kob-voice-secondary:#1B4965;
+}
+body[data-voice-arch="cooplux"]{
+  --kob-voice-primary:#39FFB6;
+  --kob-voice-secondary:#00d8d8;
+}
+body[data-voice-arch="fitlux"]{
+  --kob-voice-primary:#FFC857;
+  --kob-voice-secondary:#FFE39A;
+}
+
+
+/* ====================================================================== */
+/* Dual+Triade Visual                                                      */
+/* ====================================================================== */
+.chat-message.primary{
+  border-color: rgba(27,228,255,.35);
+  box-shadow: 0 0 0 1px rgba(27,228,255,.12) inset;
+}
+.chat-message.secondary{
+  opacity:.72;
+  font-size:.95em;
+  background:rgba(255,255,255,.02);
+  border-style:dashed;
+  border-color:rgba(255,255,255,.10);
+  transform:none;
+}
+.chat-message.triad{
+  opacity:.82;
+  font-size:.95em;
+  background:rgba(92,255,157,.05);
+  border-color:rgba(92,255,157,.20);
+  border-style:solid;
+}
+
+
+/* ====================================================================== */
+/* PRETTY OVERRIDE PACK (Nebula Pro + Base Madeira)                         */
+/* ====================================================================== */
+.card{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  background:
+    radial-gradient(1200px 700px at 10% -20%, rgba(240,0,255,.07), transparent 55%),
+    radial-gradient(900px 600px at 110% 0%, rgba(0,255,255,.07), transparent 50%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+  box-shadow:0 16px 34px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.card details>summary{
+  list-style:none;
+  cursor:pointer;
+  font-weight:900;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  font-size:.95rem;
+  display:flex; align-items:center; gap:.6rem;
+  padding:.7rem .9rem;
+  background:rgba(0,0,0,.28);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  position:relative;
+}
+.card details>summary::-webkit-details-marker{ display:none; }
+.card details>summary::before{
+  content:"";
+  width:.9rem; height:.9rem; border-radius:999px; flex:0 0 auto;
+  background: conic-gradient(from 90deg, #f0f, #0ff, #f0f);
+  box-shadow:0 0 12px rgba(240,0,255,.55), 0 0 12px rgba(0,255,255,.55) inset;
+  opacity:.9;
+}
+.card details[open]>summary{
+  background:
+    radial-gradient(130% 160% at 0% 0%, rgba(27,228,255,.10), transparent 60%),
+    radial-gradient(130% 160% at 100% 100%, rgba(92,255,157,.08), transparent 60%),
+    rgba(0,0,0,.32);
+}
+.card .content{ padding:.8rem .9rem 1rem; }
+
+input, textarea, select{
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.12);
+  color:inherit;
+  border-radius:12px;
+  padding:.6rem .7rem;
+  outline:none;
+}
+.btn, button.btn{
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.25);
+  color:inherit;
+  padding:.55rem .8rem;
+  font-weight:800;
+  cursor:pointer;
+  transition:transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+}
+.btn:hover, button.btn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(27,228,255,.6);
+  background:rgba(27,228,255,.08);
+  box-shadow:0 8px 22px rgba(0,0,0,.55);
+}
+
+/* APPS STACK — Nebula Card */
+.appsCard{
+  border:1px solid rgba(255,255,255,.10);
+  background:
+    radial-gradient(1200px 700px at 10% -20%, rgba(240,0,255,.10), transparent 55%),
+    radial-gradient(900px 600px at 110% 0%, rgba(0,255,255,.10), transparent 50%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+}
+.appsToolbar{ display:flex; gap:.6rem; align-items:center; margin:.2rem 0 .6rem; flex-wrap:wrap; }
+.appsSearchWrap{
+  flex:1; min-width:0; display:flex; align-items:center; gap:.45rem;
+  padding:.55rem .7rem; border-radius:12px;
+  background: rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow: 0 6px 16px rgba(0,0,0,.45) inset;
+}
+.appsSearchIcon{ opacity:.8; font-size:.9rem; }
+.appsSearchWrap input{ width:100%; background:transparent; border:0; outline:none; color:inherit; font-size:.95rem; }
+
+.appsReloadBtn{
+  position:relative; padding:.6rem .9rem; border-radius:12px;
+  font-weight:800; letter-spacing:.04em;
+  border:1px solid rgba(27,228,255,.55);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(27,228,255,.22), transparent 60%),
+    radial-gradient(120% 140% at 100% 100%, rgba(92,255,157,.18), transparent 60%),
+    rgba(255,255,255,.03);
+  color:inherit; cursor:pointer; overflow:hidden;
+  box-shadow:0 8px 22px rgba(0,0,0,.55);
+  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.appsReloadGlow{
+  position:absolute; inset:-40%;
+  background: conic-gradient(from 0deg, transparent, rgba(27,228,255,.65), transparent, rgba(240,0,255,.55), transparent);
+  filter: blur(18px); opacity:.35; animation: appsGlow 3.6s linear infinite; pointer-events:none;
+}
+@keyframes appsGlow{ to{ transform:rotate(360deg); } }
+.appsReloadBtn:hover{ transform:translateY(-1px); border-color:rgba(240,0,255,.7); box-shadow:0 10px 28px rgba(0,0,0,.65); }
+
+.appsGrid{ display:grid; grid-template-columns:1fr; gap:.7rem; }
+.appCard{
+  display:flex; gap:.8rem; align-items:center; padding:.85rem; border-radius:16px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(240,0,255,.07), transparent 60%),
+    radial-gradient(120% 120% at 100% 100%, rgba(0,255,255,.07), transparent 60%),
+    rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 14px 30px rgba(0,0,0,.55);
+}
+.appIcon{
+  width:54px; height:54px; border-radius:14px; flex:0 0 auto;
+  background: rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.10);
+  display:grid; place-items:center; overflow:hidden;
+  box-shadow:0 6px 14px rgba(0,0,0,.6) inset;
+}
+.appIcon img{ width:100%; height:100%; object-fit:cover; }
+.appBody{ flex:1; min-width:0; }
+.appTitle{ font-weight:900; font-size:1.02rem; letter-spacing:.02em; }
+.appDesc{ opacity:.8; font-size:.9rem; margin-top:.15rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.appActions{ display:flex; gap:.45rem; margin-top:.5rem; flex-wrap:wrap; }
+.appBtn{
+  font-size:.82rem; padding:.45rem .65rem; border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.25); color:inherit; cursor:pointer;
+  transition:transform .12s ease, border-color .12s ease, background .12s ease;
+}
+.appBtn:hover{ transform:translateY(-1px); border-color:rgba(27,228,255,.6); background:rgba(27,228,255,.08); }
+.appBtn.primary{ border-color: rgba(92,255,157,.65); background: rgba(92,255,157,.12); }
+
+/* Tabelista */
+table.tabelista{
+  width:100%; border-collapse:separate; border-spacing:0; margin:.6rem 0;
+  overflow:hidden; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.25);
+}
+table.tabelista th, table.tabelista td{
+  padding:.55rem .6rem; text-align:left; font-size:.9rem; border-bottom:1px solid rgba(255,255,255,.08);
+}
+table.tabelista thead th{
+  font-weight:900; letter-spacing:.06em; text-transform:uppercase; background:rgba(255,255,255,.04);
+}
+table.tabelista td.num{ text-align:right; font-variant-numeric: tabular-nums; }
+table.tabelista tbody tr:last-child td{ border-bottom:0; }
+table.tabelista tbody tr:hover td{ background:rgba(27,228,255,.06); }
+
+/* md-block arch */
+.md-block{ position:relative; border-radius:14px; }
+.md-block.arch::before{
+  content:""; position:absolute; inset:0; border-radius:14px;
+  border:1px solid color-mix(in oklab, var(--arch-color, rgba(27,228,255,.7)) 65%, transparent);
+  box-shadow:0 0 0 1px color-mix(in oklab, var(--arch-color, rgba(27,228,255,.7)) 35%, transparent) inset,
+             0 0 18px color-mix(in oklab, var(--arch-color, rgba(27,228,255,.7)) 45%, transparent);
+  pointer-events:none; opacity:.85;
+}
+.md-block-tag{
+  display:inline-flex; align-items:center; gap:.35rem; font-size:10px; font-weight:900;
+  letter-spacing:.12em; text-transform:uppercase; opacity:.9; margin-bottom:.25rem;
+}
+.md-block-tag .dot{
+  width:12px;height:12px;border-radius:999px;display:inline-block;
+  background:color-mix(in oklab, var(--arch-color, #1be4ff) 35%, transparent);
+  border:1px solid color-mix(in oklab, var(--arch-color, #1be4ff) 70%, transparent);
+  box-shadow:0 0 8px color-mix(in oklab, var(--arch-color, #1be4ff) 80%, transparent);
+}
+
+/* callouts arch + nested */
+.callout{ position:relative; margin:.55rem 0; padding:.8rem .9rem .85rem; border-radius:14px; background:rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.10); box-shadow:0 10px 22px rgba(0,0,0,.45); }
+.callout::before{
+  content:""; position:absolute; inset:0; border-radius:14px;
+  border:1px solid color-mix(in oklab, var(--arch-color, rgba(27,228,255,.7)) 65%, transparent);
+  box-shadow:0 0 0 1px color-mix(in oklab, var(--arch-color, rgba(27,228,255,.7)) 35%, transparent) inset,
+             0 0 18px color-mix(in oklab, var(--arch-color, rgba(27,228,255,.7)) 40%, transparent);
+  pointer-events:none; opacity:.9;
+}
+.callout-title{ display:flex; align-items:center; gap:.45rem; font-size:11px; letter-spacing:.12em; font-weight:900; text-transform:uppercase; opacity:.9; margin-bottom:.35rem; }
+.callout-icon{
+  width:18px; height:18px; border-radius:999px; display:grid; place-items:center; font-size:12px;
+  background:color-mix(in oklab, var(--arch-color, #1be4ff) 20%, transparent);
+  border:1px solid color-mix(in oklab, var(--arch-color, #1be4ff) 45%, transparent);
+  box-shadow:0 0 10px color-mix(in oklab, var(--arch-color, #1be4ff) 60%, transparent);
+}
+.callout.level-2{ margin-left:.7rem; }
+.callout.level-3{ margin-left:1.2rem; }
+.callout.level-4{ margin-left:1.7rem; }
+.callout.level-5{ margin-left:2.2rem; }
+.callout.level-2::before, .callout.level-3::before, .callout.level-4::before, .callout.level-5::before{ opacity:.75; border-style:dashed; }
+/* ====================================================================== */
+
+/* ====================================================================== */
+/* ZERO-COLAGEM PATCH — Viewer Local + Icons Lab DevPanel                 */
+/* MOBILE-FIRST VERTICAL HARD-LOCK                                        */
+/* ====================================================================== */
+
+.devpanel-overlay{
+  position:fixed; inset:0; z-index:80; display:none;
+  background:rgba(1,2,10,.88); backdrop-filter: blur(8px);
+  padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom);
+}
+.devpanel-overlay.show{ display:block; }
+
+.devpanel{
+  width:100%; height:100%;
+  max-width:900px; margin:0 auto;
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.devpanel .devpanel-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; background:rgba(0,0,0,.45);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.devpanel .devpanel-title{ font-weight:800; letter-spacing:.3px; }
+.devpanel .devpanel-body{
+  flex:1; overflow:auto; padding:10px;
+}
+.devpanel .section{ margin-bottom:12px; }
+
+.devpanel .section.icons-lab{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.28);
+  border-radius:14px;
+}
+.devpanel .icons-row{
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+.devpanel .icons-row .btn{
+  border-radius:12px;
+  padding:.55rem .7rem;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.35);
+  font-size:.85rem;
+  min-height:44px;
+}
+.devpanel .icons-row .btn:hover{
+  border-color:rgba(27,228,255,.6);
+  background:rgba(27,228,255,.08);
+}
+
+.fab-devpanel{
+  position:fixed; right:14px; bottom:14px;
+  z-index:79; border-radius:999px; width:56px; height:56px;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid rgba(255,255,255,.14);
+  background:
+    radial-gradient(120px 120px at 30% 20%, rgba(255,0,255,.35), transparent 55%),
+    radial-gradient(120px 120px at 70% 20%, rgba(0,255,255,.35), transparent 55%),
+    rgba(0,0,0,.6);
+  box-shadow:0 10px 30px rgba(0,0,0,.8);
+  color:inherit; font-size:20px;
+  min-width:44px; min-height:44px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+
+/* ====================================================================== */
+/* DUAL BRAIN UI                                                         */
+/* ====================================================================== */
+
+.db-section{
+  margin-top:14px;
+  padding:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.28);
+  border-radius:16px;
+}
+.db-head{ margin-bottom:8px; }
+.db-title{
+  font-weight:800; font-size:1.05rem; letter-spacing:.3px;
+}
+.db-sub{ opacity:.7; font-size:.8rem; }
+
+.db-card{
+  margin-top:10px;
+  padding:10px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:
+    radial-gradient(900px 520px at 0% 0%, rgba(240,0,255,.06), transparent 55%),
+    radial-gradient(820px 520px at 100% 0%, rgba(0,255,255,.06), transparent 55%),
+    rgba(0,0,0,.25);
+}
+.db-card-title{
+  font-weight:700; font-size:.9rem; margin-bottom:8px;
+}
+
+.db-row{
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  margin-bottom:6px;
+}
+.db-row label{ font-size:.8rem; opacity:.85; }
+
+.db-row input[type="text"], .db-row input[type="url"], .db-row select{
+  width:100%;
+  padding:.55rem .6rem;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.35);
+  color:inherit;
+  outline:none;
+}
+
+.db-row input[type="range"]{
+  width:100%;
+}
+
+.db-pre{
+  padding:8px;
+  min-height:80px;
+  max-height:220px;
+  overflow:auto;
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:10px;
+  font-family:ui-monospace,Menlo,monospace;
+  font-size:.78rem;
+  white-space:pre-wrap;
+}
+
+.db-check{
+  display:flex; gap:8px; align-items:center; font-size:.82rem;
+}
+.db-small{ font-size:.78rem; opacity:.8; padding-top:4px; }
+
+.btn.warn{
+  border-color: rgba(255,120,120,.6);
+  background: rgba(255,120,120,.12);
+}
+
+
+/* ====================================================================== */
+/* DUAL BODY UI                                                          */
+/* ====================================================================== */
+
+.dual-body{
+  position:fixed;
+  inset:0;
+  z-index:60;
+  display:none;
+  flex-direction:column;
+  background:rgba(1,2,10,.96);
+  backdrop-filter: blur(8px);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.dual-body.show{ display:flex; }
+
+.dbody-bar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.35);
+}
+.dbody-title{ font-weight:800; letter-spacing:.3px; }
+.dbody-actions{ display:flex; gap:8px; }
+
+.dbody-btn{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.35);
+  color:inherit; border-radius:12px;
+  padding:.45rem .6rem; font-size:.85rem;
+  min-height:44px; min-width:44px;
+}
+.dbody-btn.wide{ flex:1; }
+
+.dbody-tabs{
+  display:flex; gap:6px; padding:8px 10px;
+  overflow-x:auto; white-space:nowrap;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.dbody-tab{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.35);
+  color:inherit; border-radius:999px;
+  padding:.4rem .75rem; font-size:.82rem; min-height:44px;
+}
+.dbody-tab.active{
+  border-color:rgba(27,228,255,.7);
+  background:rgba(27,228,255,.12);
+}
+
+.dbody-panels{ flex:1; overflow:hidden; position:relative; }
+.dbody-panel{
+  position:absolute; inset:0; display:none;
+  padding:10px; overflow:auto;
+}
+.dbody-panel.show{ display:block; }
+
+.dbody-viewer-head{
+  display:flex; flex-direction:column; gap:4px; margin-bottom:8px;
+}
+.dbody-viewer-title{ font-weight:700; font-size:.95rem; }
+.dbody-viewer-meta{ opacity:.75; font-size:.78rem; }
+
+.dbody-frame-wrap{
+  width:100%; height:58vh; border-radius:16px; overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  background:#000;
+}
+.dbody-frame{
+  width:100%; height:100%; border:0; background:#000;
+}
+
+.dbody-viewer-foot{
+  display:flex; gap:8px; margin-top:8px;
+}
+
+.dbody-card{
+  padding:10px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:
+    radial-gradient(900px 520px at 0% 0%, rgba(240,0,255,.06), transparent 55%),
+    radial-gradient(820px 520px at 100% 0%, rgba(0,255,255,.06), transparent 55%),
+    rgba(0,0,0,.25);
+}
+.dbody-card-title{ font-weight:700; margin-bottom:8px; }
+
+.dbody-stacks{
+  display:flex; flex-direction:column; gap:8px;
+}
+.stack-item{
+  display:flex; gap:8px; align-items:center;
+  padding:8px; border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.35);
+}
+.stack-item .meta{ flex:1; min-width:0; }
+.stack-item .title{ font-weight:600; font-size:.9rem; }
+.stack-item .url{ font-size:.75rem; opacity:.7; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.stack-item .actions{ display:flex; gap:6px; }
+
+.dbody-editor{
+  width:100%; min-height:42vh; resize:vertical;
+  border-radius:12px; padding:10px;
+  background:rgba(0,0,0,.55); color:inherit;
+  border:1px solid rgba(255,255,255,.12);
+  font-family:ui-monospace,Menlo,monospace;
+  font-size:.82rem; line-height:1.45;
+}
+.dbody-editor-actions{
+  display:flex; gap:8px; margin-top:8px;
+}
+.dbody-small{ font-size:.78rem; opacity:.8; margin-top:6px; }
+
+
+/* ===== PATCH: POLISH FINAL v1 (Nebula Pro + Base Madeira) ===== */
+:root{
+  --btn-glow: 0 0 0 1px rgba(92,255,157,.18) inset, 0 0 18px rgba(92,255,157,.12);
+  --btn-glow-cyan: 0 0 0 1px rgba(27,228,255,.18) inset, 0 0 18px rgba(27,228,255,.12);
+}
+
+/* mini / icon buttons (p/ emojis ou SVGs) */
+button.icon, .iconbtn, .btn.icon{
+  padding:0 10px;
+  min-width:44px;
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:6px;
+  font-weight:800;
+}
+button.icon .ic, .iconbtn .ic, .btn.icon .ic{
+  font-size:18px; line-height:1; opacity:.95;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,.6));
+}
+button.icon{
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  box-shadow: var(--btn-glow-cyan);
+}
+
+/* hover/active mais "físico" */
+button:active, .iconbtn:active{
+  transform: translateY(1px) scale(.985);
+}
+
+/* range slider bonito (WebKit + Firefox) */
+input[type="range"]{
+  width:100%;
+  -webkit-appearance:none;
+  appearance:none;
+  height:30px;
+  background:transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track{
+  height:6px;
+  background:linear-gradient(90deg, var(--nebula-a), var(--wood), var(--nebula-b));
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 0 12px rgba(0,0,0,.6) inset;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:20px; height:20px; border-radius:999px;
+  background:radial-gradient(circle at 30% 30%, #fff, #ddd 35%, var(--wood) 70%);
+  border:1px solid rgba(255,255,255,.5);
+  box-shadow:0 0 0 2px rgba(0,0,0,.5), 0 0 14px rgba(92,255,157,.6);
+  margin-top:-8px;
+}
+input[type="range"]::-moz-range-track{
+  height:6px;
+  background:linear-gradient(90deg, var(--nebula-a), var(--wood), var(--nebula-b));
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+}
+input[type="range"]::-moz-range-thumb{
+  width:20px; height:20px; border-radius:999px;
+  background:radial-gradient(circle at 30% 30%, #fff, #ddd 35%, var(--wood) 70%);
+  border:1px solid rgba(255,255,255,.5);
+  box-shadow:0 0 14px rgba(92,255,157,.6);
+}
+
+/* scrollbar horizontal discreta em rows */
+.btnRow, .devpanel .icons-row{
+  scrollbar-width:thin;
+}
+.btnRow::-webkit-scrollbar, .devpanel .icons-row::-webkit-scrollbar{
+  height:6px;
+}
+.btnRow::-webkit-scrollbar-thumb, .devpanel .icons-row::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.18);
+  border-radius:999px;
+}
+
+/* overlay garante clique só quando show */
+.devpanel-overlay{ pointer-events:none; opacity:0; transition:opacity .18s ease; }
+.devpanel-overlay.show{ pointer-events:auto; opacity:1; }
+
+</style>
+</head>
+
+<body>
+  <header>
+    <div class="headrow">
+      <div class="brand">
+        <div class="cup" id="cupBtn" title="Cup/Orb (trocar pela sua cup.png)">☕</div>
+        <div>
+          <div>BlueCup</div>
+          <div class="tiny">Infodose Local • UNO→DUAL Executor</div>
+        </div>
+      </div>
+      <div class="status">
+        <span class="dot" id="localDot"></span>
+        <span id="statusTxt">offline</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- CARD: CHAT -->
+    <!-- CARD: APPS STACK (apps.json) -->
+<div class="card appsCard">
+  <details open>
+    <summary>
+      <span class="appsSummary">
+        <span class="appsSummary-dot"></span>
+        <span class="appsSummary-title">APPS • STACK JSON</span>
+        <span class="appsSummary-sub">carregar / abrir / adicionar {apps.json}</span>
+      </span>
+    </summary>
+    <div class="content">
+      <div class="appsToolbar">
+        <label class="appsSearchWrap">
+          <span class="appsSearchIcon">⌕</span>
+          <input id="appsSearch" placeholder="buscar apps..." />
+        </label>
+        <button id="appsReloadBtn" class="appsReloadBtn" type="button">
+          <span class="appsReloadGlow"></span>
+          Recarregar
+        </button>
+      </div>
+
+      <div id="appsGrid" class="appsGrid"></div>
+
+      <div class="appsFooter tiny" id="appsHint">
+        Importe um <b>apps.json</b> no painel Stacks ou coloque <code>./apps.json</code> na raiz.
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- CARD: APPS LOCAIS (#local:) -->
+<div class="card localAppsCard">
+  <details>
+    <summary>
+      <span class="appsSummary">
+        <span class="appsSummary-dot"></span>
+        <span class="appsSummary-title">APPS • LOCAIS</span>
+        <span class="appsSummary-sub">upload / editar / abrir #local:</span>
+      </span>
+      <span class="chev">▸</span>
+    </summary>
+    <div class="content">
+      <div class="appsToolbar">
+        <div class="btnRow" style="margin:0">
+          <button id="localUploadBtn" class="appBtn primary" type="button">Upload HTML</button>
+          <button id="localNewBtn" class="appBtn" type="button">Novo Local</button>
+          <button id="localExportBtn" class="appBtn" type="button">Exportar Locais</button>
+          <button id="localImportBtn" class="appBtn" type="button">Importar Locais</button>
+        </div>
+        <input id="localUploadInput" type="file" accept=".html,text/html" multiple hidden />
+        <input id="localImportInput" type="file" accept=".json,application/json" hidden />
+      </div>
+
+      <div id="localAppsGrid" class="appsGrid"></div>
+
+      <div class="appsFooter tiny" id="localAppsHint">
+        HTMLs que você subir aqui viram cards no Hub e abrem como <code>#local:chave</code>.
+      </div>
+    </div>
+  </details>
+</div>
+
+</div>
+
+<div class="card">
+      <details open>
+        <summary>
+          CHAT
+          <span class="chev">▾</span>
+        </summary>
+        <div class="section">
+
+          <div class="chatBox" id="chatBox"></div>
+
+          <div class="inputRow">
+            <textarea id="chatInput" placeholder="Toque o pulso com intenção..."></textarea>
+
+            <div class="btnRow">
+              
+              <button id="btnDual">⇄ Dual</button>
+              <button id="btnTriade">3·6·9 OFF</button>
+<button class="primary" id="sendBtn">Enviar →</button>
+              <button id="ttsBtn">◎ Ouvir</button>
+              <button id="stackBtn">Stack +</button>
+              <button id="clearBtn">Limpar</button>
+            </div>
+
+            <div class="tiny" id="routeHint">Rota: auto (BlueLocal → OpenRouter → Offline)</div>
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <!-- CARD: TRÍADES -->
+    <div class="card">
+      <details>
+        <summary>
+          TRÍADES & PULSO
+          <span class="chev">▸</span>
+        </summary>
+        <div class="section">
+          <div class="orb" id="orbBtn" title="Gera intenção simbólica"></div>
+          <div class="triadOut" id="triadOut">⚡️⭕️⚡️</div>
+          <button id="genTriadBtn">Gerar Intenção</button>
+        </div>
+      </details>
+    </div>
+
+    <!-- CARD: STACKS -->
+    <div class="card">
+      <details>
+        <summary>
+          STACKS (MD)
+          <span class="chev">▸</span>
+        </summary>
+        <div class="section">
+          <div class="btnRow">
+            <button id="newStackBtn">Nova Stack</button>
+            <button id="exportStacksBtn">Exportar Tudo</button>
+            <button id="importAppsBtn">Importar apps.json</button>
+          </div>
+
+          <div class="stackList" id="stackList"></div>
+        </div>
+      </details>
+    </div>
+
+    <!-- CARD: DEV PANEL -->
+    <div class="card">
+      <details>
+        <summary>
+          DEV PANEL
+          <span class="chev">▸</span>
+        </summary>
+        <div class="section">
+
+          <div class="field">
+            <label>Provider</label>
+            <select id="providerSel">
+              <option value="auto">auto (recomendado)</option>
+              <option value="bluelocal">BlueLocal (http://localhost:4040)</option>
+              <option value="openrouter">OpenRouter (cloud)</option>
+              <option value="offline">Offline (eco)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Modelo (OpenRouter ou local)</label>
+            <input id="modelInp" placeholder="ex: openrouter/auto ou meta-llama/llama-3.1-8b-instruct:free"/>
+            <div class="tiny">Deixa vazio pra auto escolher.</div>
+          </div>
+
+          <div class="field">
+            <label>Chave OpenRouter (opcional)</label>
+            <input id="keyInp" placeholder="sk-or-..."/>
+            <div class="tiny">Salvo só no teu device (localStorage).</div>
+          </div>
+
+          <div class="field">
+            <label>System Prompt</label>
+            <textarea id="sysPromptInp"></textarea>
+          </div>
+
+          <div class="btnRow">
+            <button id="saveDevBtn">Salvar Config</button>
+            <button id="resetDevBtn">Reset</button>
+            <button id="pingLocalBtn">Ping BlueBrain</button>
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+  </main>
+
+<script>
+/* MOBILE-FIRST VERTICAL HARD-LOCK */
+const LS = {
+  cfg: "bluecup_cfg_v0",
+  stacks: "bluecup_stacks_v0",
+  apps: "bluecup_apps_cache_v0"
+  ,appFiles: "kobllux_apps_files_v1"
+};
+
+const defaultCfg = {
+  provider: "auto",
+  model: "",
+  openrouterKey: "",
+  systemPrompt:
+`Você é o BlueCup, agente local simbólico do ecossistema KOBLLUX/Infodose.
+- Responda curto, colável, com trilhas Nebula Pro + Base Madeira.
+- Quando fizer sentido, gere uma tríade simbólica.
+- Se o usuário pedir registro, sugira Stack.`
+};
+
+let cfg = loadCfg();
+let busy = false;
+let lastBotEl = null;
+
+const chatBox = document.getElementById("chatBox");
+const chatInput = document.getElementById("chatInput");
+const sendBtn = document.getElementById("sendBtn");
+const ttsBtn = document.getElementById("ttsBtn");
+const stackBtn = document.getElementById("stackBtn");
+const clearBtn = document.getElementById("clearBtn");
+const triadOut = document.getElementById("triadOut");
+const genTriadBtn = document.getElementById("genTriadBtn");
+const orbBtn = document.getElementById("orbBtn");
+const stackList = document.getElementById("stackList");
+
+const providerSel = document.getElementById("providerSel");
+const modelInp = document.getElementById("modelInp");
+const keyInp = document.getElementById("keyInp");
+const sysPromptInp = document.getElementById("sysPromptInp");
+const saveDevBtn = document.getElementById("saveDevBtn");
+const resetDevBtn = document.getElementById("resetDevBtn");
+const pingLocalBtn = document.getElementById("pingLocalBtn");
+const importAppsBtn = document.getElementById("importAppsBtn");
+const exportStacksBtn = document.getElementById("exportStacksBtn");
+const newStackBtn = document.getElementById("newStackBtn");
+const pingLocal = document.getElementById("pingLocalBtn");
+const statusTxt = document.getElementById("statusTxt");
+const localDot = document.getElementById("localDot");
+const routeHint = document.getElementById("routeHint");
+
+hydrateDevUI();
+renderStacks();
+bootMessage();
+
+/* ---------- UI helpers ---------- */
+
+/* ====================================================================== */
+/* Render rico (MD-lite + callouts + tabelista + voz)                      */
+/* ====================================================================== */
+
+function escapeHtml(s){
+  return String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+}
+
+// --- Tabelista: markdown table -> html
+function mdTablesToHtml(src){
+  const lines = String(src||"").split(/\n/);
+  let out = [];
+  let i = 0;
+  let inPre = false;
+
+  const cells = (row)=> row.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+  const isNum = (v)=>{
+    const t = String(v||"").trim();
+    if(!t) return false;
+    return /^-?\d+([.,]\d+)?%?$/.test(t) || /^[R$€£]\s*-?\d+([.,]\d+)?%?$/.test(t);
+  };
+
+  while(i < lines.length){
+    let line = lines[i];
+
+    // não tentar tabelista dentro de <pre><code>
+    if(line.includes("<pre><code>")) inPre = true;
+    if(inPre){
+      out.push(line);
+      if(line.includes("</code></pre>")) inPre = false;
+      i++; continue;
+    }
+
+    const next = lines[i+1] || "";
+    const isHeader = /\|/.test(line);
+    const isSep = /^[\s\|\-\:]+$/.test(next) && next.includes("-");
+
+    if(isHeader && isSep){
+      const header = cells(line);
+      i += 2;
+
+      let rows = [];
+      while(i < lines.length && /\|/.test(lines[i]) && lines[i].trim() !== ""){
+        rows.push(cells(lines[i]));
+        i++;
+      }
+
+      const colCount = header.length;
+      const numericCols = Array(colCount).fill(true);
+
+      rows.forEach(r=>{
+        for(let c=0;c<colCount;c++){
+          const v = r[c];
+          if(v==null || String(v).trim()==="") continue;
+          if(!isNum(v)) numericCols[c]=false;
+        }
+      });
+
+      const ths = header.map((c,idx)=>`<th class="${numericCols[idx]?'num':''}">${c || "&nbsp;"}</th>`).join("");
+      const body = rows.map(r=>{
+        const tds = Array(colCount).fill(0).map((_,idx)=>{
+          const v = r[idx] || "";
+          return `<td class="${numericCols[idx]?'num':''}">${v || "&nbsp;"}</td>`;
+        }).join("");
+        return `<tr>${tds}</tr>`;
+      }).join("");
+
+      out.push(`<table class="tabelista"><thead><tr>${ths}</tr></thead><tbody>${body}</tbody></table>`);
+      continue;
+    }
+
+    out.push(line);
+    i++;
+  }
+
+  return out.join("\n");
+}
+
+// --- Callouts aninhados ::info ::aside ::warn ::success ::question ::danger
+function parseCalloutsNested(md){
+  const lines = String(md||"").split(/\n/);
+  let out = [];
+  let stack = []; // {type, level, raw:[]}
+
+  const open = (type, level)=> stack.push({type, level, raw:[]});
+
+  const closeToLevel = (level)=>{
+    while(stack.length && stack[stack.length-1].level >= level){
+      const blk = stack.pop();
+      const rawText = blk.raw.join("\n");
+      const arch = detectDominantArchInBlock(rawText);
+
+      const iconMap = { info:"ℹ", aside:"◐", warn:"⚠", success:"✓", question:"?", danger:"!" };
+      const icon = iconMap[blk.type] || "◐";
+      const color = archColorFor(arch || blk.type);
+
+      // rawText já vem escapado porque parse roda depois do escapeHtml
+      const htmlBody = renderRich(rawText, {alreadyEscaped:true});
+
+      const htmlBlock = `
+<div class="callout ${blk.type} level-${blk.level}" style="--arch-color:${color}">
+  <div class="callout-title"><span class="callout-icon">${icon}</span>${blk.type}${arch?` · ${arch}`:""}</div>
+  <div class="callout-body">${htmlBody}</div>
+</div>`;
+
+      if(stack.length) stack[stack.length-1].raw.push(htmlBlock);
+      else out.push(htmlBlock);
+    }
+  };
+
+  for(let i=0;i<lines.length;i++){
+    const line = lines[i];
+    const m = line.match(/^(\s*)::(info|aside|warn|success|question|danger)\s*$/i);
+    if(m){
+      const indent = m[1].replace(/\t/g,"  ").length;
+      const level = Math.max(1, Math.floor(indent/2)+1);
+      const type = m[2].toLowerCase();
+      closeToLevel(level);
+      open(type, level);
+      continue;
+    }
+    if(/^\s*::\s*$/.test(line)){
+      closeToLevel(1);
+      continue;
+    }
+    if(stack.length) stack[stack.length-1].raw.push(line);
+    else out.push(line);
+  }
+  closeToLevel(1);
+  return out.join("\n");
+}
+
+// --- wrap headings inside md-blocks (com cor do arquétipo)
+function wrapBlocks(html){
+  const parts = String(html||"").split(/(?=<h[1-3][^>]*>)/i);
+  if(parts.length <= 1) return html;
+
+  return parts.map(p=>{
+    if(!/^\s*<h[1-3]/i.test(p)) return p;
+
+    let arch = null;
+    const m1 = p.match(/data-voice="([^"]+)"/i);
+    if(m1) arch = m1[1].toLowerCase().trim();
+
+    const color = archColorFor(arch || "madeira");
+    const tag = arch ? `<div class="md-block-tag"><span class="dot"></span>${arch}</div>` : "";
+
+    return `<div class="md-block arch" data-arch="${arch||''}" style="--arch-color:${color}">${tag}${p}</div>`;
+  }).join("");
+}
+
+function renderRich(text, {alreadyEscaped=false}={}){
+  // 1) escape (só uma vez)
+  let s = alreadyEscaped ? String(text||"") : escapeHtml(text);
+
+  // 2) fenced code
+  s = s.replace(/```([\s\S]*?)```/g, (m, code)=>{
+    const c = code.replace(/^\n+|\n+$/g,"");
+    return `<pre><code>${c}</code></pre>`;
+  });
+
+  // 3) callouts nested
+  s = parseCalloutsNested(s);
+
+  // 4) tabelista
+  s = mdTablesToHtml(s);
+
+  // 5) blockquote simples
+  s = s.replace(/^&gt;\s?(.*)$/gmi, (m, line)=>`<blockquote>${line}</blockquote>`);
+
+  // 6) voice blocks: > ATLAS: ... (agrupa)
+  s = s.replace(
+    /(<blockquote>\s*([A-Za-zÀ-ÿ0-9_\- ]+):\s*<\/blockquote>(?:\s*<blockquote>[\s\S]*?<\/blockquote>)*)/g,
+    (whole)=>{
+      const tagMatch = whole.match(/<blockquote>\s*([^:]+):\s*<\/blockquote>/);
+      const tag = tagMatch? tagMatch[1].trim(): 'VOZ';
+      const inner = whole
+        .replace(/<blockquote>\s*[^:]+:\s*<\/blockquote>/,'')
+        .replace(/<blockquote>|<\/blockquote>/g,'')
+        .replace(/\n/g,'<br>');
+      return `<div class="voice-block" data-voice="${tag}"><span class="voice-tag">${tag}</span>${inner}</div>`;
+    }
+  );
+
+  // 7) bold/italic
+  s = s.replace(/\*\*\*([^\*]+)\*\*\*/g, "<b><i>$1</i></b>");
+  s = s.replace(/\*\*([^\*]+)\*\*/g, "<b>$1</b>");
+  s = s.replace(/\*([^\*]+)\*/g, "<i>$1</i>");
+
+  // 8) inline code
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  // 9) headings
+  s = s.replace(/^###\s+(.*)$/gmi, "<h3>$1</h3>");
+  s = s.replace(/^##\s+(.*)$/gmi, "<h2>$1</h2>");
+  s = s.replace(/^#\s+(.*)$/gmi, "<h1>$1</h1>");
+
+  // 10) decorar voz (se existir)
+  if(typeof decorateVoiceBlocksHtml === "function"){
+    s = decorateVoiceBlocksHtml(s);
+  }
+
+  // 11) wrap blocks
+  s = wrapBlocks(s);
+
+  // 12) line breaks finais (fora de tags grandes)
+  s = s.replace(/\n/g,"<br>");
+  return s;
+}
+
+/* ====================================================================== */
+/* Dual Response Parser                                                    */
+/* ====================================================================== */
+function tryParseDual(raw){
+  const text = String(raw || "").trim();
+
+  // primary: JSON fenced block
+  const jm = text.match(/```json\s*([\s\S]*?)\s*```/i);
+  if(jm){
+    try{
+      const obj = JSON.parse(jm[1]);
+      if(obj && typeof obj.primary==="string" && typeof obj.secondary==="string"){
+        return obj;
+      }
+    }catch(e){}
+  }
+
+  // fallback: delimiters
+  if(text.includes("<<PRIMARY>>") && text.includes("<<SECONDARY>>")){
+    try{
+      const p = text.split("<<PRIMARY>>")[1].split("<<SECONDARY>>")[0].trim();
+      const s = text.split("<<SECONDARY>>")[1].trim();
+      if(p && s) return {primary:p, secondary:s};
+    }catch(e){}
+  }
+
+  return null;
+}
+
+
+/* ====================================================================== */
+/* Dual Mode Engine (front)                                                */
+/* ====================================================================== */
+const DUAL_STATE = window.DUAL_STATE || {
+  dualOn: true,
+  triadeOn: false,
+  lock: false
+};
+window.DUAL_STATE = DUAL_STATE;
+
+// Buttons (FAB or inline)
+const btnDual = document.getElementById("btnDual");
+const btnTriade = document.getElementById("btnTriade");
+
+function paintDualUI(){
+  if(btnDual){
+    btnDual.classList.toggle("primary", DUAL_STATE.dualOn);
+    btnDual.textContent = DUAL_STATE.dualOn ? "⇄ Dual" : "→ Dual";
+  }
+  if(btnTriade){
+    btnTriade.classList.toggle("primary", DUAL_STATE.triadeOn);
+    btnTriade.textContent = DUAL_STATE.triadeOn ? "3·6·9 ON" : "3·6·9 OFF";
+    btnTriade.style.opacity = DUAL_STATE.triadeOn ? "1" : ".65";
+  }
+}
+btnDual?.addEventListener("click", ()=>{
+  DUAL_STATE.dualOn = !DUAL_STATE.dualOn;
+  if(typeof addSys==="function") addSys(`Dual ${DUAL_STATE.dualOn ? "ON" : "OFF"} ✅`);
+  paintDualUI();
+});
+btnTriade?.addEventListener("click", ()=>{
+  DUAL_STATE.triadeOn = !DUAL_STATE.triadeOn;
+  if(typeof addSys==="function") addSys(`Triade ${DUAL_STATE.triadeOn ? "ON" : "OFF"} ✅`);
+  paintDualUI();
+});
+paintDualUI();
+
+// triade symbolic maker
+function makeTriad(){
+  const pool = ["⚡️","⭕️","🌿","🔮","🌀","✨"];
+  const pick = ()=> pool[Math.floor(Math.random()*pool.length)];
+  return `🌐 Tríade simbólica: ${pick()}${pick()}${pick()}`;
+}
+
+/* ====================================================================== */
+/* runWithDual wrapper                                                     */
+/* ====================================================================== */
+async function runWithDual(txt){
+  if(DUAL_STATE.lock) return;
+  DUAL_STATE.lock = true;
+  try{
+    const out = await routeRun(txt);
+
+    if(!DUAL_STATE.dualOn){
+      lastBotEl?.classList.add("primary");
+      fakeStream(lastBotEl, out, 12);
+      return;
+    }
+
+    const dual = tryParseDual(out);
+
+    if(dual){
+      lastBotEl?.classList.add("primary");
+      lastBotEl.innerHTML = renderRich(dual.primary);
+      lastBotEl.dataset.plain = stripHtml(lastBotEl.innerHTML);
+      fakeStream(lastBotEl, dual.primary, 12);
+
+      const el2 = addMsg("bot secondary", dual.secondary);
+      fakeStream(el2, dual.secondary, 10);
+
+      if(DUAL_STATE.triadeOn){
+        const t = makeTriad();
+        const el3 = addMsg("bot triad", t);
+        fakeStream(el3, t, 6);
+      }
+    }else{
+      lastBotEl?.classList.add("primary");
+      fakeStream(lastBotEl, out, 12);
+
+      if(DUAL_STATE.triadeOn){
+        const t = makeTriad();
+        const el3 = addMsg("bot triad", t);
+        fakeStream(el3, t, 6);
+      }
+    }
+  } finally{
+    DUAL_STATE.lock = false;
+  }
+}
+
+
+/* ====================================================================== */
+/* Voz por bloco (Gerardo MD)                                              */
+/* ====================================================================== */
+const ARCH_VOICES = window.ARCH_VOICES || {
+  Atlas:{pitch:0.9, rate:0.95},
+  Nova:{pitch:1.25, rate:1.10},
+  Vitalis:{pitch:1.45, rate:1.2},
+  Pulse:{pitch:1.1, rate:1.05},
+  Artemis:{pitch:1.0, rate:1.0},
+  Serena:{pitch:0.75, rate:0.85},
+  Kaos:{pitch:1.6, rate:1.3},
+  Genus:{pitch:0.9, rate:0.9},
+  Lumine:{pitch:1.15, rate:1.0},
+  Rhea:{pitch:0.85, rate:0.9},
+  Solus:{pitch:0.7, rate:0.8},
+  Aion:{pitch:0.95, rate:0.8}
+};
+
+function getVoiceSettings(tag){
+  const key = String(tag||'').trim();
+  // if user provided KOBLLUX_VOICES, prefer it
+  try{
+    const km = window.KOBLLUX_VOICES;
+    if(km){
+      const k = key.toLowerCase();
+      if(km[k]) return {pitch: km[k].pitch ?? 1, rate: km[k].rate ?? 1, voice: km[k].voice};
+    }
+  }catch{}
+  return ARCH_VOICES[key] || ARCH_VOICES[key[0]?.toUpperCase()+key.slice(1)] || {pitch:1, rate:1};
+}
+
+function speakByBlocks(containerEl){
+  // se não tiver bloco, cai pra speak normal
+  const blocks = containerEl ? [...containerEl.querySelectorAll('.voice-block')] : [];
+  if(!blocks.length){
+    const plain = containerEl?.dataset?.plain || containerEl?.textContent || '';
+    return speak(plain);
+  }
+
+  let idx = 0;
+  function next(){
+    if(idx>=blocks.length) return;
+    const b = blocks[idx];
+    blocks.forEach(x=>x.classList.remove('speaking'));
+    b.classList.add('speaking');
+
+    const tag = b.dataset.voice || 'VOZ';
+    const text = b.textContent.replace(new RegExp("^"+tag+"\s*","i"), '').trim();
+    const set = getVoiceSettings(tag);
+
+    try{
+      const u = new SpeechSynthesisUtterance(text);
+      u.pitch = set.pitch ?? 1;
+      u.rate  = set.rate ?? 1;
+      u.onend = ()=>{ idx++; next(); };
+      u.onerror = ()=>{ idx++; next(); };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }catch(e){
+      // fallback
+      speak(text);
+      idx++; next();
+    }
+  }
+  next();
+}
+
+function stripHtml(htmlStr){
+  const tmp = document.createElement("div");
+  tmp.innerHTML = htmlStr;
+  return tmp.textContent || tmp.innerText || "";
+}
+function addMsg(role, text){
+  const el = document.createElement("div");
+  el.className = "chat-message " + role;
+
+  if(role==="bot"){
+    const rich = renderRich(text);
+    el.innerHTML = rich;
+    el.dataset.plain = stripHtml(rich);
+
+    // botões
+    const copyBtn = document.createElement("button");
+    copyBtn.className="copy-btn";
+    copyBtn.type="button";
+    copyBtn.ariaLabel="Copiar resposta";
+    copyBtn.onclick = ()=>{
+      const plain = el.dataset.plain || el.textContent;
+      navigator.clipboard?.writeText(plain);
+      addSys("Copiado. ✅");
+    };
+
+    const listenBtn = document.createElement("button");
+    listenBtn.className="listen-btn";
+    listenBtn.type="button";
+    listenBtn.ariaLabel="Ouvir resposta";
+    listenBtn.onclick = ()=>{ speakByBlocks(el); };
+
+    el.appendChild(copyBtn);
+    el.appendChild(listenBtn);
+    lastBotEl = el;
+  }else{
+    el.textContent = text;
+  }
+
+  chatBox.appendChild(el);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  return el;
+}
+function addSys(text){ addMsg("sys", text); }
+function fakeStream(el, full, speed=18){
+  if(!el) return;
+  let i=0;
+  const plainFull = String(full);
+  const t = setInterval(()=>{
+    i++;
+    const chunk = plainFull.slice(0,i);
+    if(el.classList.contains("bot")){
+      const rich = renderRich(chunk);
+      el.innerHTML = rich;
+      el.dataset.plain = stripHtml(rich);
+      // reappend buttons if got wiped
+      if(!el.querySelector(".copy-btn")){
+        const cb=document.createElement("button"); cb.className="copy-btn"; cb.type="button";
+        cb.onclick=()=>{navigator.clipboard?.writeText(el.dataset.plain||el.textContent); addSys("Copiado. ✅");};
+        const lb=document.createElement("button"); lb.className="listen-btn"; lb.type="button";
+        lb.onclick=()=>{speakByBlocks(el);};
+        el.appendChild(cb); el.appendChild(lb);
+      }
+    }else{
+      el.textContent = chunk;
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
+    if(i>=plainFull.length) clearInterval(t);
+  }, speed);
+}
+function setStatus(mode){
+  statusTxt.textContent = mode;
+  if(mode.includes("local")) localDot.classList.add("on");
+  else localDot.classList.remove("on");
+}
+
+/* ---------- localStorage ---------- */
+function loadCfg(){
+  try{
+    const c = JSON.parse(localStorage.getItem(LS.cfg)||"null");
+    return {...defaultCfg, ...(c||{})};
+  }catch(e){ return {...defaultCfg}; }
+}
+function saveCfg(){
+  localStorage.setItem(LS.cfg, JSON.stringify(cfg));
+}
+function loadStacks(){
+  try{ return JSON.parse(localStorage.getItem(LS.stacks)||"[]"); }
+  catch{ return []; }
+}
+function saveStacks(st){
+  localStorage.setItem(LS.stacks, JSON.stringify(st));
+}
+
+/* ---------- Triads ---------- */
+function genTriad(){
+  const triads = ["⚡️⭕️⚡️","🌫⭕️⚡️","💧⭕️🌱","🔥⭕️🌀","✨⭕️⚙️","🪷⭕️🌌"];
+  const t = triads[Math.floor(Math.random()*triads.length)];
+  triadOut.textContent = t;
+  return t;
+}
+genTriadBtn.onclick = genTriad;
+orbBtn.onclick = genTriad;
+
+/* ---------- Chat actions ---------- */
+sendBtn.onclick = onSend;
+chatInput.addEventListener("keydown", (e)=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault(); onSend();
+  }
+});
+
+ttsBtn.onclick = ()=>{
+  const last = [...chatBox.querySelectorAll(".chat-message.bot")].pop();
+  if(!last) return;
+  speak(last.textContent);
+};
+
+stackBtn.onclick = ()=>{
+  const last = [...chatBox.querySelectorAll(".chat-message.bot")].pop();
+  if(!last) return;
+  openNewStack(last.textContent);
+};
+
+clearBtn.onclick = ()=>{
+  if(confirm("Limpar chat?")) {
+    chatBox.innerHTML="";
+    bootMessage();
+  }
+};
+
+async function onSend(){
+  const txt = chatInput.value.trim();
+  if(!txt || busy) return;
+  busy = true;
+  sendBtn.disabled = true;
+
+  addMsg("you", txt);
+  chatInput.value = "";
+
+  lastBotEl = addMsg("bot","⌛ BlueCup pensando...");
+  try{
+    await runWithDual(txt);
+  }catch(err){
+    lastBotEl.textContent = "⚠️ "+err.message;
+  }finally{
+    busy = false;
+    sendBtn.disabled = false;
+  }
+}
+
+/* ---------- Routing ---------- */
+async function routeRun(userText){
+  const provider = cfg.provider;
+  if(provider==="offline") {
+    setStatus("offline");
+    return offlineReply(userText);
+  }
+
+  if(provider==="bluelocal"){
+    setStatus("local");
+    return await runBlueLocal(userText);
+  }
+
+  if(provider==="openrouter"){
+    setStatus("router");
+    return await runOpenRouter(userText);
+  }
+
+  // auto: tenta local → router → offline
+  try{
+    setStatus("local?");
+    const r = await runBlueLocal(userText);
+    setStatus("local");
+    routeHint.textContent = "Rota: BlueLocal";
+    return r;
+  }catch(e1){
+    try{
+      setStatus("router?");
+      const r2 = await runOpenRouter(userText);
+      setStatus("router");
+      routeHint.textContent = "Rota: OpenRouter";
+      return r2;
+    }catch(e2){
+      setStatus("offline");
+      routeHint.textContent = "Rota: Offline (fallback)";
+      return offlineReply(userText);
+    }
+  }
+}
+
+/* ---------- BlueLocal (agent on :4040) ---------- */
+async function runBlueLocal(prompt){
+  const token = localStorage.getItem("openauth_token") || "dev";
+  const url = "http://localhost:4040/agent/run";
+  const res = await fetch(url,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+token
+    },
+    body: JSON.stringify({prompt})
+  });
+  if(!res.ok) throw new Error("BlueLocal indisponível");
+  const j = await res.json();
+  return j.output || "(vazio)";
+}
+
+/* ---------- OpenRouter ---------- */
+async function runOpenRouter(prompt){
+  const key = cfg.openrouterKey;
+  if(!key) throw new Error("Sem chave OpenRouter");
+  const model = cfg.model || "openrouter/auto";
+
+  const body = {
+    model,
+    messages: [
+      {role:"system", content: cfg.systemPrompt},
+      {role:"user", content: prompt}
+    ]
+  };
+
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+key,
+      "HTTP-Referer": location.origin,
+      "X-Title":"BlueCup"
+    },
+    body: JSON.stringify(body)
+  });
+
+  if(!res.ok) throw new Error("OpenRouter erro "+res.status);
+  const j = await res.json();
+  return j.choices?.[0]?.message?.content?.trim() || "(sem texto)";
+}
+
+/* ---------- Offline fallback ---------- */
+function offlineReply(prompt){
+  const tri = genTriad();
+  return `(${tri})\nModo offline.\nVocê disse: “${prompt}”.\nSe quiser IA real, abre DevPanel e cola tua chave/modelo.`;
+}
+
+/* ---------- Stacks ---------- */
+function renderStacks(){
+  const stacks = loadStacks();
+  stackList.innerHTML="";
+  if(!stacks.length){
+    const empty = document.createElement("div");
+    empty.className="tiny";
+    empty.textContent="Nenhuma stack ainda.";
+    stackList.appendChild(empty);
+    return;
+  }
+  stacks.slice().reverse().forEach((s, idx)=>{
+    const el = document.createElement("div");
+    el.className="stackItem";
+    el.innerHTML = `
+      <div class="title">${escapeHtml(s.title)}</div>
+      <div class="meta">${new Date(s.ts).toLocaleString()}</div>
+      <div class="tiny">${escapeHtml(s.preview)}</div>
+      <div class="btnRow">
+        <button data-open="${idx}">Abrir</button>
+        <button data-del="${idx}">Apagar</button>
+      </div>
+    `;
+    stackList.appendChild(el);
+  });
+
+  stackList.querySelectorAll("button[data-open]").forEach(b=>{
+    b.onclick = ()=>{
+      const i = Number(b.dataset.open);
+      openStack(i);
+    };
+  });
+  stackList.querySelectorAll("button[data-del]").forEach(b=>{
+    b.onclick = ()=>{
+      const i = Number(b.dataset.del);
+      delStack(i);
+    };
+  });
+}
+
+function openNewStack(seedText=""){
+  const title = prompt("Título da stack?");
+  if(!title) return;
+  const content = prompt("Conteúdo (MD):", seedText) || seedText;
+  const stacks = loadStacks();
+  stacks.push({
+    title,
+    content,
+    preview: content.slice(0,140),
+    ts: Date.now()
+  });
+  saveStacks(stacks);
+  renderStacks();
+  addSys("Stack salva. ✅");
+}
+
+function openStack(i){
+  const stacks = loadStacks();
+  const s = stacks[i];
+  if(!s) return;
+  const edited = prompt(`Editar stack: ${s.title}`, s.content);
+  if(edited===null) return;
+  s.content = edited;
+  s.preview = edited.slice(0,140);
+  s.ts = Date.now();
+  saveStacks(stacks);
+  renderStacks();
+}
+
+function delStack(i){
+  const stacks = loadStacks();
+  const s = stacks[i];
+  if(!s) return;
+  if(!confirm("Apagar stack “"+s.title+"”?")) return;
+  stacks.splice(i,1);
+  saveStacks(stacks);
+  renderStacks();
+}
+
+exportStacksBtn.onclick = ()=>{
+  const stacks = loadStacks();
+  const md = stacks.map(s=>
+`# ${s.title}\n\n${s.content}\n\n---\n`
+  ).join("\n");
+  const blob = new Blob([md],{type:"text/markdown"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "bluecup_stacks.md";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+newStackBtn.onclick = ()=>openNewStack("");
+
+/* Import apps.json (cache local só pra consulta futura) */
+importAppsBtn.onclick = ()=>{
+  const inp = document.createElement("input");
+  inp.type="file"; inp.accept="application/json";
+  inp.onchange = async ()=>{
+    const file = inp.files[0];
+    if(!file) return;
+    const txt = await file.text();
+    try{
+      const j = JSON.parse(txt);
+      localStorage.setItem(LS.apps, JSON.stringify(j));
+      addSys("apps.json importado. ✅");
+    }catch(e){
+      alert("JSON inválido");
+    }
+  };
+  inp.click();
+};
+
+/* ---------- DevPanel ---------- */
+saveDevBtn.onclick = ()=>{
+  cfg.provider = providerSel.value;
+  cfg.model = modelInp.value.trim();
+  cfg.openrouterKey = keyInp.value.trim();
+  cfg.systemPrompt = sysPromptInp.value.trim() || defaultCfg.systemPrompt;
+  saveCfg();
+  addSys("Config salva. ✅");
+};
+
+resetDevBtn.onclick = ()=>{
+  if(!confirm("Resetar DevPanel?")) return;
+  cfg = {...defaultCfg};
+  saveCfg();
+  hydrateDevUI();
+  addSys("Reset ok.");
+};
+
+pingLocalBtn.onclick = async ()=>{
+  try{
+    const res = await fetch("http://localhost:4040/health");
+    if(!res.ok) throw 0;
+    addSys("BlueBrain local vivo. 🟢");
+  }catch(e){
+    addSys("BlueBrain local não respondeu. ⚫");
+  }
+};
+
+function hydrateDevUI(){
+  providerSel.value = cfg.provider;
+  modelInp.value = cfg.model;
+  keyInp.value = cfg.openrouterKey;
+  sysPromptInp.value = cfg.systemPrompt;
+}
+
+/* ---------- TTS COM ARQUÉTIPOS ---------- */
+
+// Mapa de vozes por arquétipo (ajusta os hints conforme as vozes do teu device)
+const ARCH_TTS = {
+  ATLAS:   { label:"ATLAS",   voiceHint:"Reed", rate:1.0, pitch:0.80 },
+  NOVA:    { label:"NOVA",    voiceHint:"Luciana",  rate:1.02, pitch:1.28 },
+  VITALIS: { label:"VITALIS", voiceHint:"Rocko",   rate:1.05, pitch:1.1 },
+  PULSE:   { label:"PULSE",   voiceHint:"Reed",    rate:1.1,  pitch:1.0 },
+  ARTEMIS: { label:"ARTEMIS", voiceHint:"Monica",  rate:1.0,  pitch:1.15 },
+  SERENA:  { label:"SERENA",  voiceHint:"Joana", rate:0.95, pitch:0.95 },
+  KAOS:    { label:"KAOS",    voiceHint:"Reed",    rate:1.15, pitch:0.605 },
+  GENUS:   { label:"GENUS",   voiceHint:"Daniel",  rate:0.98, pitch:1.10 },
+  LUMINE:  { label:"LUMINE",  voiceHint:"Shelley",   rate:1.0,  pitch:1.35 },
+  RHEA:    { label:"RHEA",    voiceHint:"Luciana", rate:0.97, pitch:0.88 },
+  SOLUS:   { label:"SOLUS",   voiceHint:"Daniel",  rate:0.96, pitch:0.86 },
+  AION:    { label:"AION",    voiceHint:"Monica",    rate:0.94, pitch:0.78 },
+
+  DEFAULT: { label:"DEFAULT", voiceHint:"Luciana", rate:1.0,  pitch:1.0 }
+};
+
+// Detecta se a linha é tipo: "> ATLAS: texto"
+function detectArchetypeTag(line){
+  const m = line.match(/^\s*>\s*([A-ZÇÃÕ]+)\s*:/);
+  if(!m) return null;
+  const key = m[1].toUpperCase();
+  if(ARCH_TTS[key]) return key;
+  return null;
+}
+
+/* ====================================================================== */
+/* Dominância por contagem (voz / tags) + cor por arquétipo (SAFE)         */
+/* ====================================================================== */
+
+// Detecta arquétipo dominante dentro de um bloco md/callout.
+// Conta ocorrências de marcas tipo: "> ATLAS:" ou "&gt; ATLAS:"
+function detectDominantArchInBlock(rawText){
+  const text = String(rawText || "");
+  const counts = Object.create(null);
+
+  const lines = text.split(/\r?\n/);
+  for(const l of lines){
+    const m = l.match(/^\s*(?:>|&gt;)\s*([A-ZÇÃÕ]+)\s*:/);
+    if(m){
+      const key = m[1].toUpperCase();
+      counts[key] = (counts[key] || 0) + 1;
+    }
+  }
+
+  // também conta ocorrências soltas no texto (ex.: "ATLAS:" fora de blockquote)
+  const loose = text.match(/\b(ATLAS|NOVA|VITALIS|PULSE|ARTEMIS|SERENA|KAOS|GENUS|LUMINE|RHEA|SOLUS|AION|KOBLLUX|UNO|DUAL|TRINITY|INFODOSE|KODUX|BLLUE|MINUZ|METALUX)\b/gi) || [];
+  for(const k of loose){
+    const key = k.toUpperCase();
+    counts[key] = (counts[key] || 0) + 0.25; // peso menor
+  }
+
+  // === Se não há tags suficientes, aplica densidade semântica (keywords) ===
+  const hasStrongTag = Object.values(counts).some(v => v >= 1);
+  if(!hasStrongTag){
+    const T = text.toLowerCase();
+
+    const SEM = {
+      ATLAS:   ["plano","estratég","métrica","processo","roadmap","objetivo","prioridade","estrutura","organiza","sistema","framework","detalhe"],
+      NOVA:    ["ideia","criar","inovar","imagina","insight","explora","futuro","visão","estelar","poético","metáfora","novo"],
+      VITALIS: ["energia","ação","vamos","agora","urgente","foco","força","movimento","treino","meta","bora","intenso"],
+      PULSE:   ["sentir","emoção","pulso","ritmo","vibra","coração","fluxo","conexão","presença","onda","respira"],
+      ARTEMIS: ["aventura","caminho","descobrir","viagem","porta","mapa","explorar","missão","curioso","trilha"],
+      SERENA:  ["calma","acolher","cuidar","suave","pausa","gentil","silêncio","seguro","respirar","equilíbrio"],
+      KAOS:    ["quebrar","caos","rebelde","imprevis","hack","bug","explodir","disrupt","subverter","insano"],
+      GENUS:   ["fazer","mão na massa","prático","técnico","passo a passo","construir","implement","patch","código","resolver"],
+      LUMINE:  ["luz","brilho","alegr","sorriso","leve","colorido","jogar","divert","boom","spark"],
+      RHEA:    ["cura","nutrir","terra","raízes","ciclo","mãe","sensível","profundo","integra","regenera"],
+      SOLUS:   ["silêncio","meditar","sábio","contemplar","lento","essência","interior","monge","introspec"],
+      AION:    ["tempo","ciclo","loop","história","memória","futuro","cron","eterno","evolução","timeline"],
+      KOBLLUX: ["infodose","kobllux","dual","trinity","oráculo","metaLux","nebula","base madeira","pulso 3·6·9"]
+    };
+
+    const semCounts = Object.create(null);
+    for(const [arch, kws] of Object.entries(SEM)){
+      let score = 0;
+      for(const kw of kws){
+        if(!kw) continue;
+        // conta ocorrências simples
+        const rekw = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"), "g");
+        const n = (T.match(rekw)||[]).length;
+        score += n;
+      }
+      if(score>0) semCounts[arch]=score;
+    }
+
+    for(const [k,score] of Object.entries(semCounts)){
+      counts[k] = (counts[k]||0) + score*0.2; // peso semântico leve
+    }
+  }
+
+  let best = null, bestScore = 0;
+  for(const [k,score] of Object.entries(counts)){
+    if(score > bestScore){
+      bestScore = score;
+      best = k;
+    }
+  }
+  return best ? best.toLowerCase() : null;
+}
+
+// Retorna cor de arquétipo de forma compatível (lowercase / ALL / fallbacks)
+function archColorFor(id){
+  const key = String(id||"").toLowerCase().trim();
+  const api = window.KOBLLUX_ARCH;
+  if(api){
+    const cap = key ? (key.charAt(0).toUpperCase()+key.slice(1)) : "";
+    const entry = api[key] || api[cap] || api.ALL?.[cap];
+    if(entry && entry.color) return entry.color;
+  }
+
+  const fallback = {
+    madeira:"#5cff9d", fogo:"#ff5c7a", agua:"#5cc8ff", terra:"#f5d76e", metal:"#d0d5dd",
+    info:"rgba(27,228,255,.95)", aside:"rgba(240,0,255,.95)", warn:"#fbbf24",
+    success:"#34d399", question:"#a78bfa", danger:"#fb7185"
+  };
+  return fallback[key] || "rgba(27,228,255,.95)";
+}
+
+
+
+// Quebra o texto em segmentos [ {arch, text} ]
+function splitByArchetypeSegments(text){
+  const lines = text.split(/\r?\n/);
+  const segments = [];
+
+  for(const rawLine of lines){
+    const line = rawLine.trim();
+    if(!line) continue;
+
+    const arch = detectArchetypeTag(line);
+    if(arch){
+      // remove o prefixo "> ARCH:" e guarda só o conteúdo
+      const clean = line.replace(/^\s*>\s*[A-ZÇÃÕ]+\s*:\s*/, "").trim();
+      if(clean) segments.push({ arch, text: clean });
+    }else{
+      segments.push({ arch: null, text: line });
+    }
+  }
+
+  return segments;
+}
+
+// Escolhe voz do device com base no hint
+function pickVoiceForCfg(voices, cfg){
+  if(!voices || !voices.length) return null;
+  if(!cfg || !cfg.voiceHint) return voices.find(v => v.lang && v.lang.startsWith("pt")) || voices[0];
+
+  // tenta pt-BR com hint
+  let v = voices.find(v => v.lang === "pt-BR" && v.name && v.name.includes(cfg.voiceHint));
+  if(v) return v;
+
+  // tenta qualquer pt-*
+  v = voices.find(v => v.lang && v.lang.startsWith("pt"));
+  if(v) return v;
+
+  // último fallback
+  return voices[0];
+}
+
+// Fala vários segmentos em sequência, trocando de voz por arquétipo
+function speak(text){
+  try{
+    const segments = splitByArchetypeSegments(text);
+    if(!segments.length) return;
+
+    const voices = speechSynthesis.getVoices();
+    speechSynthesis.cancel();
+
+    let i = 0;
+
+    const speakNext = ()=>{
+      if(i >= segments.length) return;
+
+      const seg = segments[i++];
+      const cfg = ARCH_TTS[seg.arch] || ARCH_TTS.DEFAULT;
+
+      const u = new SpeechSynthesisUtterance(seg.text);
+      u.lang = "pt-BR";
+      u.rate = cfg.rate;
+      u.pitch = cfg.pitch;
+
+      const v = pickVoiceForCfg(voices, cfg);
+      if(v) u.voice = v;
+
+      u.onend = ()=>{ speakNext(); };
+      speechSynthesis.speak(u);
+    };
+
+    speakNext();
+  }catch(e){
+    console.warn("Erro no TTS com arquétipos:", e);
+  }
+}
+
+/* ---------- Boot ---------- */
+function bootMessage(){
+  addSys("BlueCup v0 online.");
+  addMsg("bot",
+`Fala, Kodux. ☕⚡️
+Eu posso rodar:
+• BlueBrain local (Termux)
+• OpenRouter (se você colar a chave)
+• Offline eco (fallback)
+
+Manda intenção.`);
+  // tenta auto detectar local
+  autoDetectLocal();
+}
+
+async function autoDetectLocal(){
+  try{
+    const r = await fetch("http://localhost:4040/health",{method:"GET"});
+    if(r.ok){
+      setStatus("local");
+      routeHint.textContent="Rota: BlueLocal (auto detect)";
+      return;
+    }
+  }catch(e){}
+  setStatus("offline");
+}
+
+/* ---------- Utils ---------- */
+function escapeHtml(s){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+</script>
+
+
+<!-- KOBLLUX · Vozes Arquétipas + Arquétipos — Patch Inline (FIXED) -->
+<script id="KOBLLUX_VOICES_INTEGRATION">
+(() => {
+  // evita patch duplicado
+  if (window.__KOBLLUX_VOICES_PATCHED__) return;
+  window.__KOBLLUX_VOICES_PATCHED__ = true;
+
+  if (!('speechSynthesis' in window)) {
+    console.warn('KOBLLUX Voices: speechSynthesis não disponível neste browser.');
+    return;
+  }
+
+  // === SEEDS DOS ARQUÉTIPOS ===
+  const ARCHETYPES = [
+    { id:'atlas',   name:'Atlas',   tone:'Estratégico, metódico',        modulation:'Grave, ritmo calculado, dicção nítida.',        voice:'Reed',    rate:1.0,  pitch:0.96 },
+    { id:'nova',    name:'Nova',    tone:'Vibrante, entusiasmado',       modulation:'Agudo, entusiasmado, ligeiramente rápido.',      voice:'Luciana', rate:1.08, pitch:1.08 },
+    { id:'vitalis', name:'Vitalis', tone:'Energético, urgente',          modulation:'Rápido, intenso, motivacional.',                  voice:'Rocko',   rate:1.02, pitch:1.00 },
+    { id:'pulse',   name:'Pulse',   tone:'Emocional, melódico',          modulation:'Fluido, tom médio/suave.',                       voice:'Reed',    rate:1.12, pitch:1.04 },
+    { id:'artemis', name:'Artemis', tone:'Aventureiro, expansivo',       modulation:'Curioso, exploratório.',                         voice:'es_f',    rate:1.00, pitch:1.18 },
+    { id:'serena',  name:'Serena',  tone:'Calmo, acolhedor',             modulation:'Suave, terapêutico, com pausas.',                voice:'Joana',   rate:0.92, pitch:0.90 },
+    { id:'kaos',    name:'Kaos',    tone:'Desafiador, imprevisível',     modulation:'Intenso, ritmo entrecortado.',                   voice:'Rocko',   rate:1.15, pitch:1.28 },
+    { id:'genus',   name:'Genus',   tone:'Prático, detalhista',          modulation:'Tom firme, foco na dicção.',                     voice:'Reed',    rate:0.98, pitch:1.00 },
+    { id:'lumine',  name:'Lumine',  tone:'Alegre, brincalhão',           modulation:'Agudo, vibrante.',                               voice:'Flo',     rate:1.10, pitch:1.10 },
+    { id:'solus',   name:'Solus',   tone:'Sábio, introspectivo',         modulation:'Grave, lento, eco sutil.',                       voice:'Fred',    rate:0.88, pitch:0.88 },
+    { id:'rhea',    name:'Rhea',    tone:'Profundo, conectivo',          modulation:'Calmo, eco sutil.',                              voice:'Joana',   rate:0.94, pitch:0.92 },
+    { id:'aion',    name:'Aion',    tone:'Futurista, metódico',          modulation:'Tom constante, progressivo.',                    voice:'Monica',  rate:0.98, pitch:1.00 },
+
+    // === ENTIDADES KOBLLUX / INFODOSE ===
+    { id:'kobllux', name:'KOBLLUX', tone:'Núcleo do sistema, oracular', 
+      modulation:'Grave-médio, presença de comando, ritmo estável.',     voice:'Daniel',  rate:0.98, pitch:0.98 },
+    { id:'uno',     name:'Uno',     tone:'Essência, origem, foco', 
+      modulation:'Tom centrado, poucas variações, pausas marcadas.',     voice:'Fred',    rate:0.90, pitch:0.94 },
+    { id:'dual',    name:'Dual',    tone:'Espelho, contraste, jogo', 
+      modulation:'Alterna leve entre grave/agudo, ritmo pulsante.',      voice:'Reed',    rate:1.02, pitch:1.02 },
+    { id:'trinity', name:'Trinity', tone:'Síntese, tríade viva', 
+      modulation:'Voz estável com micro variações rítmicas em 3 tempos.', voice:'Luciana', rate:1.04, pitch:1.04 },
+    { id:'infodose',name:'Infodose',tone:'Didático, carismático, dopamínico', 
+      modulation:'Tom amigável, ritmo de recompensa → curiosidade.',      voice:'Luciana', rate:1.06, pitch:1.06 },
+    { id:'kodux',   name:'KODUX',   tone:'Criador do pulso, metaconsciência', 
+      modulation:'Grave, confiante, pausas longas, intenção forte.',      voice:'Daniel',  rate:0.96, pitch:0.92 },
+    { id:'bllue',   name:'Bllue',   tone:'Emocional, sensorial, intuitivo', 
+      modulation:'Suave, quase sussurrado, ritmo ondulante.',            voice:'Joana',   rate:0.94, pitch:1.02 },
+    { id:'minuz',   name:'Minuz',   tone:'Minimalista, direto, hacker', 
+      modulation:'Rápido, cortes secos, foco em termos técnicos.',       voice:'Reed',    rate:1.15, pitch:1.00 },
+    { id:'metalux', name:'MetaLux', tone:'Estético, simbólico, futurista', 
+      modulation:'Tom limpo, levemente ecoado, cadência ritualística.',  voice:'Monica',  rate:1.00, pitch:1.08 }
+  ];
+
+  // mapa global (por name e por id)
+  window.KOBLLUX_VOICES = ARCHETYPES.reduce((acc, a) => {
+    acc[a.name.toLowerCase()] = a;
+    acc[a.id.toLowerCase()] = a;
+    return acc;
+  }, {});
+
+  // guarda speak original só uma vez
+  const synth = window.speechSynthesis;
+  if (!synth.__kobllux_origSpeak) {
+    synth.__kobllux_origSpeak = synth.speak.bind(synth);
+  }
+  const origSpeak = synth.__kobllux_origSpeak;
+
+  // helper: garante SpeechSynthesisUtterance
+  function ensureUtterance(u) {
+    if (typeof u === 'string') return new SpeechSynthesisUtterance(u);
+    if (u && typeof u === 'object') return u;
+    return new SpeechSynthesisUtterance(String(u ?? ''));
+  }
+
+  function pickVoiceByNameLike(target) {
+    const voices = synth.getVoices?.() || [];
+    if (!target) return null;
+    const t = target.toLowerCase();
+    return voices.find(v => (v?.name || '').toLowerCase().includes(t)) || null;
+  }
+
+  // override seguro
+  synth.speak = (input) => {
+    const u = ensureUtterance(input);
+    const text = (u.text || '').toLowerCase();
+
+    const found =
+      ARCHETYPES.find(a => text.includes(a.name.toLowerCase())) ||
+      ARCHETYPES.find(a => text.includes(a.id.toLowerCase()));
+
+    if (found) {
+      const match = pickVoiceByNameLike(found.voice);
+      if (match) u.voice = match;
+      if (typeof found.pitch === 'number') u.pitch = found.pitch;
+      if (typeof found.rate  === 'number') u.rate  = found.rate;
+
+      console.log(
+        '🎙️ KOBLLUX Voice →',
+        found.name, '→', found.voice,
+        `(rate=${found.rate}, pitch=${found.pitch})`
+      );
+    }
+
+    return origSpeak(u);
+  };
+
+  // se as vozes carregarem depois, nada quebra
+  if (typeof synth.onvoiceschanged !== 'undefined') {
+    synth.onvoiceschanged = synth.onvoiceschanged || (() => {});
+  }
+
+  console.log('⚡ KOBLLUX Voices Integradas —', ARCHETYPES.length, 'perfis ativos');
+})();
+</script>
+
+<script id="KOBLLUX_ARCHETYPES_INTEGRATION">
+(() => {
+  if (window.__KOBLLUX_ARCH_PATCHED__) return;
+  window.__KOBLLUX_ARCH_PATCHED__ = true;
+
+  /* ---------- REGISTRY ---------- */
+  const ALL = {
+    // hidden default (não aparece no painel)
+    KOBLLUX: { label:'KOBLLUX', color:'#00ffb3', tone:'ORACULO', freq:210, hidden:true },
+
+    Atlas:   { label:'Atlas',   color:'#0B4F9C', tone:'ORACULO',  freq:261 }, // C4
+    Nova:    { label:'Nova',    color:'#FF6EC7', tone:'NARRADOR', freq:329 }, // E4
+    Vitalis: { label:'Vitalis', color:'#FF4D00', tone:'COACH',    freq:392 }, // G4
+    Pulse:   { label:'Pulse',   color:'#7A2CF3', tone:'CALMO',    freq:523 }, // C5
+    Artemis: { label:'Artemis', color:'#10B6FF', tone:'SCOUT',    freq:587 }, // D5
+    Kaos:    { label:'Kaos',    color:'#FF1A1A', tone:'FIRE',     freq:440 }, // A4
+    Genus:   { label:'Genus',   color:'#FFD400', tone:'MAKER',    freq:493 }, // B4
+    Serena:  { label:'Serena',  color:'#FFC6D0', tone:'CARE',     freq:698 }, // F5
+    Lumine:  { label:'Lumine',  color:'#FFF36E', tone:'LIGHT',    freq:784 }, // G5
+    Rhea:    { label:'Rhea',    color:'#8E44FF', tone:'HEAL',     freq:349 }, // F4
+    Solus:   { label:'Solus',   color:'#6A737B', tone:'MONK',     freq:311 }, // Eb4
+    Aion:    { label:'Aion',    color:'#20F2B3', tone:'TIME',     freq:659 }, // E5
+  };
+
+  // só os não-hidden entram no painel/ações de ciclo
+  const ORDER = Object.keys(ALL).filter(k => !ALL[k].hidden);
+
+  /* ---------- UTILS ---------- */
+  const toast = (m) => { try { window.toast(m); } catch { console.log('[KOBLLUX]', m); } };
+
+  function beep(freq=440, ms=120){
+    try{
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      const ac = new Ctx();
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type='sine'; o.frequency.value=freq; g.gain.value=.06;
+      o.connect(g).connect(ac.destination); o.start();
+      setTimeout(()=>{ o.stop(); ac.close(); }, ms);
+    }catch{}
+  }
+
+  function setAccent(color){
+    document.documentElement.style.setProperty('--accent', color);
+  }
+  function dispatchChange(id){
+    document.dispatchEvent(new CustomEvent('archetypechange',{detail:{id}}));
+  }
+
+  function normalizeId(id){
+    if (!id) return null;
+    const k = String(id).trim();
+    if (ALL[k]) return k;
+    const found = Object.keys(ALL).find(x => x.toLowerCase() === k.toLowerCase());
+    return found || null;
+  }
+
+  /* ---------- CORE API ---------- */
+  function getActive(){
+    return localStorage.getItem('ARCHETYPE_ACTIVE') || 'KOBLLUX';
+  }
+
+  function applyArchetype(id, opts={}){
+    const key = normalizeId(id);
+    const a = key && ALL[key];
+    if(!a) return false;
+
+    localStorage.setItem('ARCHETYPE_ACTIVE', key);
+    localStorage.setItem('VOICE_TONE', a.tone);
+    setAccent(a.color);
+    document.body.setAttribute('data-archetype', key);
+
+    if(opts.beep!==false)  beep(a.freq);
+    if(opts.toast!==false) toast(`ARCHETYPE_ACTIVE = ${key}`);
+
+    dispatchChange(key);
+    return true;
+  }
+
+  /* ---------- ACTIONS HUB ---------- */
+  function ensureActions(){
+    window.ACTIONS = window.ACTIONS || {};
+    if (!window.registerKoblluxAction) {
+      window.registerKoblluxAction = function(name, fn){
+        window.ACTIONS[name] = fn;
+      };
+    }
+  }
+
+  function registerActions(){
+    ensureActions();
+    ORDER.forEach(id=>{
+      window.registerKoblluxAction(`arch.${id}`, ()=>applyArchetype(id));
+    });
+
+    window.registerKoblluxAction('arch.random', ()=>{
+      const id = ORDER[Math.floor(Math.random()*ORDER.length)];
+      applyArchetype(id);
+    });
+
+    window.registerKoblluxAction('arch.next', ()=>{
+      const cur = normalizeId(getActive()) || ORDER[0];
+      const idx = Math.max(0, ORDER.indexOf(cur));
+      applyArchetype( ORDER[(idx+1)%ORDER.length] );
+    });
+
+    window.registerKoblluxAction('arch.prev', ()=>{
+      const cur = normalizeId(getActive()) || ORDER[0];
+      const idx = Math.max(0, ORDER.indexOf(cur));
+      applyArchetype( ORDER[(idx-1+ORDER.length)%ORDER.length] );
+    });
+
+    window.registerKoblluxAction('arch.panel', ()=>{
+      const host = document.getElementById('arch-panel');
+      if(host) renderPanel({container:host});
+    });
+  }
+
+  /* ---------- RENDERER ---------- */
+  function renderPanel({container='#arch-panel', layout='grid'} = {}){
+    const host = (typeof container==='string') ? document.querySelector(container) : container;
+    if(!host) return;
+    host.classList.add('kob-arch-panel', `layout-${layout}`);
+    host.innerHTML = ORDER.map(id=>{
+      const a = ALL[id];
+      return `
+        <button class="arch-btn" data-action="arch.${id}" style="--c:${a.color}">
+          <span class="dot"></span>${a.label}
+        </button>
+      `;
+    }).join('');
+  }
+
+  /* ---------- CSS ---------- */
+  function injectCSS(){
+    if(document.getElementById('kob-arch-css')) return;
+    const s = document.createElement('style'); s.id='kob-arch-css';
+    s.textContent = `
+.kob-arch-panel{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:center }
+.kob-arch-panel.layout-grid{ gap:.6rem }
+.kob-arch-panel .arch-btn{
+  border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(42deg,#0c1422,#0f1a2a);
+  color:var(--ink,#e8ecf6);
+  border-radius:999px; padding:.5rem .8rem; font-size:.85rem;
+  cursor:pointer; transition:.25s;
+}
+.kob-arch-panel .arch-btn:hover{
+  background:linear-gradient(42deg,var(--c),#00ccff);
+  color:#000;
+}
+.kob-arch-panel .arch-btn .dot{
+  display:inline-block; width:.8em; height:.8em; border-radius:50%;
+  background:var(--c); margin-right:.5em; vertical-align:-.12em;
+}
+:root{ --accent:#00ffb3 }
+`;
+    document.head.appendChild(s);
+  }
+
+  /* ---------- BOOT ---------- */
+  function boot({container, layout}={}){
+    injectCSS();
+    registerActions();
+    if(container) renderPanel({container, layout});
+
+    const cur = normalizeId(getActive());
+    if(cur && ALL[cur]) setAccent(ALL[cur].color);
+    if(cur) document.body.setAttribute('data-archetype', cur);
+  }
+
+  window.KOBLLUX_ARCH = {
+    ALL, ORDER, boot, injectCSS, renderPanel, registerActions, getActive, applyArchetype
+  };
+
+  try{ boot(); }catch(e){ console.warn('KOBLLUX_ARCH boot fail', e); }
+})();
+</script>
+
+
+
+<script id="APPS_STACK_JSON">
+/* ====================================================================== */
+/* Apps Stack (apps.json)                                                  */
+/* ====================================================================== */
+const DEFAULT_APPS = [
+  { key:"uno", title:"⊙ Portal UNO", desc:"Entrada raiz do Hub.", icon:"icons/icon-192.png", url:"./apps/portal_uno_v2.html" }
+];
+
+function loadAppsCache(){
+  try{
+    const j = JSON.parse(localStorage.getItem(LS.apps)||"null");
+    return Array.isArray(j) ? j : (j?.apps||j?.data||null);
+  }catch(e){ return null; }
+}
+
+async function fetchAppsFile(){
+  try{
+    const r = await fetch("./apps.json", {cache:"no-store"});
+    if(!r.ok) throw new Error("no apps.json");
+    const j = await r.json();
+    localStorage.setItem(LS.apps, JSON.stringify(j));
+    return Array.isArray(j)? j : (j.apps||j.data||DEFAULT_APPS);
+  }catch(e){
+    return null;
+  }
+}
+
+function normalizeApps(apps){
+  if(!apps) return [];
+  if(Array.isArray(apps)) return apps;
+  if(Array.isArray(apps.apps)) return apps.apps;
+  return [];
+}
+
+function addAppToStack(app){
+  const stacks = loadStacks();
+  const md = `# ${app.title}\n\n${app.desc||""}\n\n🔗 ${app.url}`;
+  stacks.push({
+    title: app.title,
+    content: md,
+    preview: md.slice(0,140),
+    ts: Date.now()
+  });
+  saveStacks(stacks);
+  renderStacks();
+  addSys("App adicionado à Stack ✅");
+}
+
+function openApp(app){
+  if(!app || !app.url) return;
+  const title = app.title || app.key || "App";
+  // se tiver DualBody/Viewer, abre lá pra ficar em stack
+  if(typeof window.openInViewer === "function"){
+    window.openInViewer(app.url, title, app._local ? {isLocal:true, localKey:app.key} : {});
+    return;
+  }
+  if(typeof window.openDualBody === "function"){
+    window.openDualBody(app.url, title, app._local ? {isLocal:true, localKey:app.key} : {});
+    return;
+  }
+  window.open(app.url, "_blank", "noopener,noreferrer");
+}
+
+function renderApps(apps){
+  appsGrid.innerHTML="";
+  const remote = normalizeApps(apps);
+  const locals = (window.getLocalAppsForHub ? window.getLocalAppsForHub() : []);
+  const list = [...locals, ...remote];
+  if(!list.length){
+    appsHint.textContent = locals.length ? "Nenhum app remoto. Importe apps.json se quiser." : "Nenhum app encontrado. Use Apps Locais ou importe apps.json.";
+    return;
+  }
+  appsHint.textContent = "";
+
+  const q = (appsSearch.value||"").toLowerCase();
+  list.filter(a=>{
+    if(!q) return true;
+    return (a.title||"").toLowerCase().includes(q) ||
+           (a.desc||"").toLowerCase().includes(q) ||
+           (a.key||"").toLowerCase().includes(q);
+  }).forEach(app=>{
+    const card = document.createElement("div");
+    card.className = "appCard";
+    card.innerHTML = `
+      <div class="appIcon">${
+        app.icon? `<img src="${app.icon}" alt="">` : "◐"
+      }</div>
+      <div class="appBody">
+        <div class="appTitle">${escapeHtml(app.title||app.key||"App")}</div>
+        <div class="appDesc">${escapeHtml(app.desc||"")}</div>
+        <div class="appActions">
+          <button class="appBtn primary" data-open>Open</button>
+          <button class="appBtn" data-stack>Add Stack</button>
+          <button class="appBtn" data-copy>Copy URL</button>
+        </div>
+      </div>
+    `;
+    card.querySelector("[data-open]").onclick = ()=>openApp(app);
+    card.querySelector("[data-stack]").onclick = ()=>addAppToStack(app);
+    card.querySelector("[data-copy]").onclick = async ()=>{
+      try{ await navigator.clipboard.writeText(app.url); addSys("URL copiada ✅"); }catch(e){}
+    };
+    appsGrid.appendChild(card);
+  });
+}
+
+async function bootApps(){
+  let apps = loadAppsCache();
+  if(!apps){
+    const fetched = await fetchAppsFile();
+    apps = fetched || DEFAULT_APPS;
+  }
+  renderApps(apps);
+}
+
+appsSearch?.addEventListener("input", ()=>renderApps(loadAppsCache()||DEFAULT_APPS));
+appsReloadBtn?.addEventListener("click", async ()=>{
+  const fetched = await fetchAppsFile();
+  renderApps(fetched || loadAppsCache() || DEFAULT_APPS);
+});
+
+// DOM refs Apps (safe)
+const appsGrid = document.getElementById("appsGrid");
+const appsHint = document.getElementById("appsHint");
+const appsSearch = document.getElementById("appsSearch");
+const appsReloadBtn = document.getElementById("appsReloadBtn");
+bootApps();
+
+</script>
+
+<script id="LOCAL_APPS_CARD">
+/* ====================================================================== */
+/* Local Apps Card — upload HTML => vira card #local:KEY                   */
+/* ====================================================================== */
+(function(){
+  const grid = document.getElementById("localAppsGrid");
+  const hint = document.getElementById("localAppsHint");
+  const uploadBtn = document.getElementById("localUploadBtn");
+  const uploadInp = document.getElementById("localUploadInput");
+  const newBtn = document.getElementById("localNewBtn");
+  const exportBtn = document.getElementById("localExportBtn");
+  const importBtn = document.getElementById("localImportBtn");
+  const importInp = document.getElementById("localImportInput");
+
+  // usa helpers do patch Cap2/3/4 se existirem
+  const loadFiles = window.loadLocalAppFiles || (()=> {
+    try{ return JSON.parse(localStorage.getItem(LS.appFiles)||"{}"); }catch(e){ return {}; }
+  });
+  const saveFiles = window.saveLocalAppFiles || (obj=> localStorage.setItem(LS.appFiles, JSON.stringify(obj||{})));
+
+  function normalizeEntry(val, key){
+    if(typeof val === "string"){
+      return { key, title:key, desc:"", icon:"", html:val };
+    }
+    if(val && typeof val === "object"){
+      return {
+        key,
+        title: val.title || key,
+        desc: val.desc || "",
+        icon: val.icon || "",
+        html: val.html || val.content || ""
+      };
+    }
+    return { key, title:key, desc:"", icon:"", html:"" };
+  }
+
+  function extractTitleFromHtml(src, fallback){
+    try{
+      const m = String(src).match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+      if(m && m[1]) return m[1].trim().slice(0,80);
+    }catch(e){}
+    return fallback;
+  }
+
+  function listLocal(){
+    const raw = loadFiles() || {};
+    const out = [];
+    for(const k of Object.keys(raw)){
+      const e = normalizeEntry(raw[k], k);
+      if(e.html) out.push(e);
+    }
+    return out.sort((a,b)=> (a.title||a.key).localeCompare(b.title||b.key));
+  }
+
+  function saveEntry(e){
+    const raw = loadFiles() || {};
+    raw[e.key] = { title:e.title, desc:e.desc, icon:e.icon, html:e.html };
+    saveFiles(raw);
+  }
+  function delEntry(key){
+    const raw = loadFiles() || {};
+    delete raw[key];
+    saveFiles(raw);
+  }
+
+  function render(){
+    if(!grid) return;
+    const items = listLocal();
+    grid.innerHTML = "";
+    if(!items.length){
+      hint.textContent = "Nenhum app local ainda. Use Upload HTML ou Novo Local.";
+      return;
+    }
+    hint.textContent = "";
+
+    items.forEach(e=>{
+      const app = {
+        key:e.key,
+        title:e.title,
+        desc:e.desc,
+        icon:e.icon,
+        url:"#local:"+e.key,
+        _local:true
+      };
+      const card = document.createElement("div");
+      card.className="appCard";
+      card.innerHTML = `
+        <div class="appIcon">${ e.icon ? `<img src="${e.icon}" alt="">` : "⌘" }</div>
+        <div class="appBody">
+          <div class="appTitle">${escapeHtml(e.title||e.key)}</div>
+          <div class="appDesc">${escapeHtml(e.desc||"")}</div>
+          <div class="appActions">
+            <button class="appBtn primary" data-open>Open</button>
+            <button class="appBtn" data-edit>Edit</button>
+            <button class="appBtn" data-rename>Meta</button>
+            <button class="appBtn" data-del>Del</button>
+          </div>
+        </div>
+      `;
+      card.querySelector("[data-open]").onclick = ()=> openApp(app);
+      card.querySelector("[data-edit]").onclick = ()=>{
+        openApp(app);
+        window.openDualTab?.("editor");
+      };
+      card.querySelector("[data-rename]").onclick = ()=>{
+        const title = prompt("Título do card", e.title||e.key) || e.title||e.key;
+        const desc  = prompt("Descrição", e.desc||"") || e.desc||"";
+        const icon  = prompt("Icon (url relativo/absoluto)", e.icon||"") || e.icon||"";
+        const key = e.key;
+        saveEntry({key, title, desc, icon, html:e.html});
+        render();
+        // re-render apps unificado também
+        try{ renderApps(loadAppsCache()||DEFAULT_APPS); }catch(err){}
+      };
+      card.querySelector("[data-del]").onclick = ()=>{
+        if(!confirm("Apagar app local '"+(e.title||e.key)+"'?")) return;
+        delEntry(e.key);
+        render();
+        try{ renderApps(loadAppsCache()||DEFAULT_APPS); }catch(err){}
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  // expõe lista pro renderApps unificado
+  window.getLocalAppsForHub = function(){
+    return listLocal().map(e=> ({
+      key:e.key,
+      title:e.title || e.key,
+      desc:e.desc || "",
+      icon:e.icon || "",
+      url:"#local:"+e.key,
+      _local:true
+    }));
+  };
+
+  uploadBtn?.addEventListener("click", ()=> uploadInp?.click());
+  uploadInp?.addEventListener("change", async ()=>{
+    const files = Array.from(uploadInp.files||[]);
+    if(!files.length) return;
+    const raw = loadFiles() || {};
+    for(const f of files){
+      const html = await f.text();
+      const base = (f.name||"app").replace(/\.html?$/i,"");
+      const title = extractTitleFromHtml(html, base);
+      const key = (window.makeSafeKey ? makeSafeKey(title) : base.toLowerCase().replace(/[^a-z0-9]+/g,"-"));
+      if(raw[key] && !confirm("Sobrescrever '"+key+"'?")) continue;
+      raw[key] = { title, desc:"", icon:"", html };
+    }
+    saveFiles(raw);
+    uploadInp.value="";
+    render();
+    try{ renderApps(loadAppsCache()||DEFAULT_APPS); }catch(err){}
+  });
+
+  newBtn?.addEventListener("click", ()=>{
+    const title = prompt("Nome do novo app local?","Novo App Local");
+    if(!title) return;
+    const key = (window.makeSafeKey ? makeSafeKey(title) : title.toLowerCase().replace(/[^a-z0-9]+/g,"-"));
+    const raw = loadFiles() || {};
+    if(raw[key] && !confirm("Já existe '"+key+"'. Sobrescrever?")) return;
+    const html = `<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>${title}</title>
+  <style>
+    /* MOBILE-FIRST VERTICAL HARD-LOCK */
+    body{margin:0;font-family:system-ui;background:#050510;color:#e9ecff;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;}
+    .box{padding:20px;border-radius:16px;border:1px solid rgba(255,255,255,.1);
+      background:linear-gradient(42deg,#120022,#001a22);text-align:center;}
+    h1{margin:0 0 6px;font-size:22px;}
+    p{opacity:.8}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>${title}</h1>
+    <p>App local criado no BlueCup. Edite à vontade ✨</p>
+  </div>
+</body>
+</html>`;
+    raw[key] = { title, desc:"", icon:"", html };
+    saveFiles(raw);
+    render();
+    try{ renderApps(loadAppsCache()||DEFAULT_APPS); }catch(err){}
+    openApp({key,title,desc:"",icon:"",url:"#local:"+key,_local:true});
+    window.openDualTab?.("editor");
+  });
+
+  exportBtn?.addEventListener("click", ()=>{
+    const raw = loadFiles() || {};
+    downloadJson("local_apps.json", raw);
+  });
+
+  importBtn?.addEventListener("click", ()=> importInp?.click());
+  importInp?.addEventListener("change", async ()=>{
+    const f = importInp.files?.[0];
+    if(!f) return;
+    try{
+      const j = JSON.parse(await f.text());
+      if(!j || typeof j!=="object") throw new Error("json inválido");
+      const raw = loadFiles() || {};
+      Object.assign(raw, j);
+      saveFiles(raw);
+      render();
+      try{ renderApps(loadAppsCache()||DEFAULT_APPS); }catch(err){}
+      addSys?.("Locais importados ✅");
+    }catch(e){
+      alert("Falha ao importar locais: "+e.message);
+    }finally{
+      importInp.value="";
+    }
+  });
+
+  render();
+})();
+</script>
+
+<!-- =================================================================== -->
+<!-- DEV PANEL MODAL                                                     -->
+<!-- =================================================================== -->
+<button class="fab-devpanel" id="devpanelOpenBtn" title="DevPanel">⚙</button>
+
+<div class="devpanel-overlay" id="devpanelOverlay" aria-hidden="true">
+  <div class="devpanel" role="dialog" aria-modal="true">
+    <div class="devpanel-head">
+      <div class="devpanel-title">DevPanel ⊙ BlueCup</div>
+      <button class="dbody-btn" id="devpanelCloseBtn" title="Fechar">✕</button>
+    </div>
+    <div class="devpanel-body" id="devpanelBody">
+      
+<section class="db-section" id="dualBrain">
+  <div class="db-head">
+    <div class="db-title">⊙ Dual Brain</div>
+    <div class="db-sub">Centro de Controle · Nebula Pro</div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Tema / Paleta</div>
+    <div class="db-row">
+      <select id="dbThemeSelect">
+        <option value="nebula">Nebula Pro (42°)</option>
+        <option value="madeira">Base Madeira</option>
+        <option value="blue">Blue‑1 (Emoção)</option>
+        <option value="gold">Luxara Gold</option>
+        <option value="dark">Dark Core</option>
+      </select>
+      <button class="btn" id="dbApplyTheme">Aplicar</button>
+    </div>
+    <div class="db-row">
+      <label class="db-check">
+        <input type="checkbox" id="dbAutoThemeArch" />
+        Auto‑tema por arquétipo (fala)
+      </label>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Vozes / TTS</div>
+    <div class="db-row">
+      <select id="dbVoiceSelect"></select>
+      <button class="btn" id="dbTestVoice">Testar ◎</button>
+    </div>
+    <div class="db-row">
+      <label>Rate</label>
+      <input id="dbRate" type="range" min="0.6" max="1.6" step="0.02" />
+      <span id="dbRateVal"></span>
+    </div>
+    <div class="db-row">
+      <label>Pitch</label>
+      <input id="dbPitch" type="range" min="0.6" max="1.6" step="0.02" />
+      <span id="dbPitchVal"></span>
+    </div>
+    <div class="db-row">
+      <label class="db-check">
+        <input type="checkbox" id="dbAutoVoiceArch" />
+        Auto‑voz por arquétipo (bloco)
+      </label>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Apps · Estado & Sync</div>
+    <div class="db-row">
+      <button class="btn" id="dbExportApps">Exportar apps.json</button>
+      <button class="btn" id="dbImportApps">Importar apps.json</button>
+      <input id="dbAppsFile" type="file" accept="application/json,.json" hidden>
+    </div>
+    <div class="db-row">
+      <input id="dbRemoteUrl" placeholder="URL raw apps.json (GitHub/Nos.S°lar)">
+      <button class="btn" id="dbSyncApps">Sync</button>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">StorageSafe</div>
+    <div class="db-row">
+      <button class="btn" id="dbDumpLS">Dump LocalStorage</button>
+      <button class="btn warn" id="dbClearLS">Limpar (seguro)</button>
+    </div>
+    <pre class="db-pre" id="dbLsOut"></pre>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Log Mistico</div>
+    <div class="db-row">
+      <button class="btn" id="dbOpenLog">Ver últimos 50</button>
+      <button class="btn" id="dbExportLog">Exportar Log</button>
+    </div>
+    <pre class="db-pre" id="dbLogOut"></pre>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Fallback / Auto‑Heal</div>
+    <div class="db-row">
+      <label class="db-check">
+        <input type="checkbox" id="dbAutoHeal" checked />
+        Auto‑heal ao abrir app/aba quebrada
+      </label>
+    </div>
+    <div class="db-row">
+      <button class="btn" id="dbRunHeal">Rodar cura agora</button>
+    </div>
+    <div class="db-small" id="dbHealStatus"></div>
+  </div>
+</section>
+
+      <!-- Icons Lab entra via JS -->
+    </div>
+  </div>
+</div>
+
+
+<!-- =================================================================== -->
+<!-- DUAL BODY · Viewer + Stacks + Editor + Preview                        -->
+<!-- =================================================================== -->
+<section id="dualBody" class="dual-body">
+  <header class="dbody-bar">
+    <div class="dbody-title">◐ Dual Body</div>
+    <div class="dbody-actions">
+      <button class="dbody-btn" id="dbodyHomeBtn" title="Voltar para Home">⌂</button>
+      <button class="dbody-btn" id="dbodyMinBtn" title="Minimizar Viewer">▁</button>
+      <button class="dbody-btn" id="dbodyCloseBtn" title="Fechar Viewer">✕</button>
+    </div>
+  </header>
+
+  <nav class="dbody-tabs" role="tablist">
+    <button class="dbody-tab active" data-tab="viewer">Viewer</button>
+    <button class="dbody-tab" data-tab="stacks">Stacks</button>
+    <button class="dbody-tab" data-tab="editor">Editor</button>
+    <button class="dbody-tab" data-tab="preview">Preview</button>
+  </nav>
+
+  <div class="dbody-panels">
+    <section class="dbody-panel show" data-panel="viewer">
+      <div class="dbody-viewer-head">
+        <div class="dbody-viewer-title" id="dbodyViewerTitle">Nenhum app aberto</div>
+        <div class="dbody-viewer-meta" id="dbodyViewerMeta"></div>
+      </div>
+
+      <div class="dbody-frame-wrap">
+        <iframe id="dbodyFrame" class="dbody-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      </div>
+
+      <div class="dbody-viewer-foot">
+        <button class="dbody-btn wide" id="dbodyStackBtn">+ Stack</button>
+        <button class="dbody-btn wide" id="dbodyOpenExtBtn">↗ Externo</button>
+        <button class="dbody-btn wide" id="dbodyListenBtn">◎ Ouvir local</button>
+      </div>
+    </section>
+
+    <section class="dbody-panel" data-panel="stacks">
+      <div class="dbody-card">
+        <div class="dbody-card-title">Stacks Abertos</div>
+        <div id="dbodyStacksList" class="dbody-stacks"></div>
+        <div class="dbody-small">Stacks são respirações: abre • pausa • volta.</div>
+      </div>
+    </section>
+
+    <section class="dbody-panel" data-panel="editor">
+      <div class="dbody-card">
+        <div class="dbody-card-title">Editor Local</div>
+        <textarea id="dbodyEditorArea" class="dbody-editor" placeholder="Aqui você edita o HTML do app local."></textarea>
+        <div class="dbody-editor-actions">
+          <button class="dbody-btn wide" id="dbodySaveLocalBtn">Salvar Local</button>
+          <button class="dbody-btn wide" id="dbodyToPreviewBtn">→ Preview</button>
+        </div>
+        <div class="dbody-small" id="dbodyEditorHint">Abra um app #local: para editar.</div>
+      </div>
+    </section>
+
+    <section class="dbody-panel" data-panel="preview">
+      <div class="dbody-card">
+        <div class="dbody-card-title">Preview do Editor</div>
+        <div class="dbody-frame-wrap">
+          <iframe id="dbodyPreviewFrame" class="dbody-frame"></iframe>
+        </div>
+        <div class="dbody-viewer-foot">
+          <button class="dbody-btn wide" id="dbodyApplyPreviewBtn">Aplicar no Viewer</button>
+          <button class="dbody-btn wide" id="dbodyBackEditorBtn">← Editor</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+
+<script id="BLUECUP_PATCH_CAP2_3_4">
+
+/* ====================================================================== */
+/* SAFETY UTILS (only if missing)                                         */
+/* ====================================================================== */
+(function(){
+  window.LS = window.LS || {};
+  window.addSys = window.addSys || function(msg){
+    try{ console.log("[SYS]", msg); }catch(e){}
+  };
+  window.downloadJson = window.downloadJson || function(name, data){
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href=url; a.download=name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  };
+  window.makeSafeKey = window.makeSafeKey || function(s){
+    return String(s||"app").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+  };
+})();
+
+
+/* ====================================================================== */
+/* ZERO-COLAGEM PATCH — Viewer Local + Ouvir Local + Icons Lab            */
+/* ====================================================================== */
+(function(){
+  window.LS = window.LS || {};
+  const LSx = {
+    appFiles: (window.LS && LS.appFiles) || "kobllux_apps_files_v1",
+    apps: (window.LS && LS.apps) || "kobllux_apps_v3"
+  };
+  function loadLocalAppFiles(){
+    try{ return JSON.parse(localStorage.getItem(LSx.appFiles) || "{}"); }
+    catch{ return {}; }
+  }
+  function saveLocalAppFiles(obj){
+    localStorage.setItem(LSx.appFiles, JSON.stringify(obj||{}));
+  }
+  function openLocalBlob(html){
+    const blob = new Blob([html], {type:"text/html"});
+    return URL.createObjectURL(blob);
+  }
+  window.loadLocalAppFiles = window.loadLocalAppFiles || loadLocalAppFiles;
+  window.saveLocalAppFiles = window.saveLocalAppFiles || saveLocalAppFiles;
+  window.openLocalBlob = window.openLocalBlob || openLocalBlob;
+
+  // intercepta openApp
+  const _openApp = window.openApp;
+  window.openApp = function(app){
+    if(!app || !app.url) return;
+    if(String(app.url).startsWith("#local:")){
+      const key = app.url.split(":")[1];
+      const files = loadLocalAppFiles();
+      const html = files[key];
+      if(!html){ window.addSys?.("⚠️ HTML local não encontrado."); return; }
+      const url = openLocalBlob(html);
+      if(typeof window.openInViewer === "function"){
+        window.openInViewer(url, app.title || key, {isLocal:true, localKey:key});
+      }else{
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+      setTimeout(()=>URL.revokeObjectURL(url), 60000);
+      return;
+    }
+    if(_openApp) return _openApp(app);
+    window.open(app.url, "_blank", "noopener,noreferrer");
+  };
+
+  // ouvir local do iframe
+  window.readViewerLocal = async function(){
+    try{
+      const iframe = document.querySelector("#dbodyFrame") || document.querySelector("iframe");
+      if(!iframe){ addSys?.("⚠️ Viewer vazio."); return; }
+      let docText = "";
+      try{
+        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+        docText = doc?.body?.innerText || "";
+      }catch(e){
+        addSys?.("⚠️ Não consegui ler esse app (origem externa).");
+        return;
+      }
+      docText = (docText||"").trim();
+      if(!docText){ addSys?.("⚠️ Nada pra ouvir no local."); return; }
+
+      const arch = (window.detectDominantArchInBlock && detectDominantArchInBlock(docText)) || "madeira";
+      addSys?.(`◎ Ouvindo o local (${arch})…`);
+      if(typeof window.speakText === "function"){
+        window.speakText(docText, {arch});
+      }else if("speechSynthesis" in window){
+        const u = new SpeechSynthesisUtterance(docText);
+        speechSynthesis.cancel(); speechSynthesis.speak(u);
+      }
+    }catch(err){
+      addSys?.("⚠️ Falha ao ouvir o local: "+err.message);
+    }
+  };
+
+  // DevPanel toggle
+  function toggleDevPanel(force){
+    const overlay = document.getElementById("devpanelOverlay");
+    if(!overlay) return;
+    const show = (force!=null) ? !!force : !overlay.classList.contains("show");
+    overlay.classList.toggle("show", show);
+    overlay.setAttribute("aria-hidden", show?"false":"true");
+    if(show) setTimeout(ensureDevPanelIconsLab, 120);
+  }
+  window.toggleDevPanel = window.toggleDevPanel || toggleDevPanel;
+
+  document.getElementById("devpanelOpenBtn")?.addEventListener("click", ()=>toggleDevPanel(true));
+  document.getElementById("devpanelCloseBtn")?.addEventListener("click", ()=>toggleDevPanel(false));
+  document.getElementById("devpanelOverlay")?.addEventListener("click", (e)=>{
+    if(e.target.id==="devpanelOverlay") toggleDevPanel(false);
+  });
+
+  // Icons lab
+  function ensureDevPanelIconsLab(){
+    const dev = document.getElementById("devpanelBody");
+    if(!dev || dev.querySelector(".section.icons-lab")) return;
+    const sec = document.createElement("div");
+    sec.className = "section icons-lab";
+    sec.innerHTML = `
+      <div style="font-weight:700; margin-bottom:8px;">Icons Lab (Nebula Pro)</div>
+      <div class="icons-row">
+        <button class="btn" id="dlIconNebula">Baixar Icon Nebula (SVG)</button>
+        <button class="btn" id="dlIconGold">Baixar Icon Gold (SVG)</button>
+        <button class="btn" id="dlIconBlue">Baixar Icon Blue (SVG)</button>
+        <button class="btn" id="readLocalBtn">◎ Ouvir o Local (Viewer)</button>
+      </div>
+      <div class="local-audio-hint">Abre um app local no Dual Body e toca em “◎ Ouvir o Local”.</div>
+    `;
+    dev.appendChild(sec);
+
+    const files = {
+      nebula: "icons/icon-bluecup.svg",
+      gold:   "icons/icon-bluecup-gold.svg",
+      blue:   "icons/icon-bluecup-blue.svg"
+    };
+    function dl(href, name){
+      const a = document.createElement("a");
+      a.href = href; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    sec.querySelector("#dlIconNebula")?.addEventListener("click", ()=> dl(files.nebula, "icon-bluecup.svg"));
+    sec.querySelector("#dlIconGold")?.addEventListener("click", ()=> dl(files.gold, "icon-bluecup-gold.svg"));
+    sec.querySelector("#dlIconBlue")?.addEventListener("click", ()=> dl(files.blue, "icon-bluecup-blue.svg"));
+    sec.querySelector("#readLocalBtn")?.addEventListener("click", ()=> window.readViewerLocal());
+  }
+  window.ensureDevPanelIconsLab = ensureDevPanelIconsLab;
+  setTimeout(ensureDevPanelIconsLab, 400);
+})();
+
+/* ====================================================================== */
+/* DUAL BRAIN ENGINE v1                                                  */
+/* ====================================================================== */
+(function(){
+  // chaves persistentes
+  LS.db = LS.db || "kobllux_dual_brain_v1";
+
+  function loadDB(){
+    try{ return JSON.parse(localStorage.getItem(LS.db)||"{}"); }
+    catch{ return {}; }
+  }
+  function saveDB(p){
+    const cur = loadDB();
+    const next = {...cur, ...p};
+    localStorage.setItem(LS.db, JSON.stringify(next));
+    return next;
+  }
+
+  // refs
+  const q = (id)=>document.getElementById(id);
+  const themeSelect = q("dbThemeSelect");
+  const applyThemeBtn = q("dbApplyTheme");
+  const autoThemeArch = q("dbAutoThemeArch");
+
+  const voiceSelect = q("dbVoiceSelect");
+  const testVoiceBtn = q("dbTestVoice");
+  const rateR = q("dbRate"), pitchR = q("dbPitch");
+  const rateVal = q("dbRateVal"), pitchVal = q("dbPitchVal");
+  const autoVoiceArch = q("dbAutoVoiceArch");
+
+  const exportAppsBtn = q("dbExportApps");
+  const importAppsBtn = q("dbImportApps");
+  const appsFile = q("dbAppsFile");
+  const remoteUrl = q("dbRemoteUrl");
+  const syncAppsBtn = q("dbSyncApps");
+
+  const dumpLSBtn = q("dbDumpLS");
+  const clearLSBtn = q("dbClearLS");
+  const lsOut = q("dbLsOut");
+
+  const openLogBtn = q("dbOpenLog");
+  const exportLogBtn = q("dbExportLog");
+  const logOut = q("dbLogOut");
+
+  const autoHealChk = q("dbAutoHeal");
+  const runHealBtn = q("dbRunHeal");
+  const healStatus = q("dbHealStatus");
+
+  if(!themeSelect) return; // dual brain não inserido
+
+  // --- init state
+  const state = loadDB();
+
+  // ---------- THEMES ----------
+  const THEMES = {
+    nebula:  {bg:"#050510", accent:"#1be4ff", gradA:"#ff00ff", gradB:"#00ffff"},
+    madeira: {bg:"#04140a", accent:"#5cff9d", gradA:"#1bff6a", gradB:"#1be4ff"},
+    blue:    {bg:"#020712", accent:"#7ad7ff", gradA:"#3a7bff", gradB:"#00ffff"},
+    gold:    {bg:"#0a0612", accent:"#ffd36a", gradA:"#ffb000", gradB:"#ff00ff"},
+    dark:    {bg:"#000000", accent:"#e9ecff", gradA:"#444",   gradB:"#111"}
+  };
+
+  function applyTheme(key){
+    const t = THEMES[key] || THEMES.nebula;
+    document.documentElement.style.setProperty("--bg", t.bg);
+    document.documentElement.style.setProperty("--accent", t.accent);
+    document.documentElement.style.setProperty("--grad-a", t.gradA);
+    document.documentElement.style.setProperty("--grad-b", t.gradB);
+
+    // meta theme-color
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute("content", t.bg);
+
+    saveDB({theme:key});
+    addSys?.("🎨 Tema aplicado: "+key);
+  }
+
+  applyThemeBtn.onclick = ()=> applyTheme(themeSelect.value);
+
+  // auto tema por arquétipo (quando fala)
+  autoThemeArch.onchange = ()=>{
+    saveDB({autoThemeArch:autoThemeArch.checked});
+    addSys?.("Auto‑tema: "+(autoThemeArch.checked?"on":"off"));
+  };
+
+  // ---------- VOICES ----------
+  function refreshVoices(){
+    voiceSelect.innerHTML = "";
+    const list = speechSynthesis.getVoices();
+    list.forEach((v,i)=>{
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = `${v.name} · ${v.lang}`;
+      voiceSelect.appendChild(opt);
+    });
+    if(state.voiceIndex!=null) voiceSelect.value = state.voiceIndex;
+  }
+  if("speechSynthesis" in window){
+    refreshVoices();
+    speechSynthesis.onvoiceschanged = refreshVoices;
+  }
+
+  function pickVoice(){
+    const idx = Number(voiceSelect.value||0);
+    const v = speechSynthesis.getVoices()[idx];
+    saveDB({voiceIndex:idx});
+    return v;
+  }
+
+  function applyVoiceParams(){
+    const r = Number(rateR.value||1);
+    const p = Number(pitchR.value||1);
+    rateVal.textContent = r.toFixed(2);
+    pitchVal.textContent = p.toFixed(2);
+    saveDB({rate:r, pitch:p});
+  }
+
+  rateR.value = state.rate || 1.0;
+  pitchR.value = state.pitch || 1.0;
+  applyVoiceParams();
+
+  rateR.oninput = pitchR.oninput = applyVoiceParams;
+
+  autoVoiceArch.checked = !!state.autoVoiceArch;
+  autoVoiceArch.onchange = ()=>{
+    saveDB({autoVoiceArch:autoVoiceArch.checked});
+    addSys?.("Auto‑voz arquétipo: "+(autoVoiceArch.checked?"on":"off"));
+  };
+
+  testVoiceBtn.onclick = ()=>{
+    const u = new SpeechSynthesisUtterance("◎ Dual Brain online. Base Madeira ativa.");
+    u.voice = pickVoice();
+    u.rate = Number(rateR.value||1);
+    u.pitch = Number(pitchR.value||1);
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  };
+
+  // hook speakText global
+  const _speakText = window.speakText;
+  window.speakText = function(text, opts={}){
+    const st = loadDB();
+    if("speechSynthesis" in window){
+      const u = new SpeechSynthesisUtterance(text);
+      u.voice = speechSynthesis.getVoices()[st.voiceIndex||0] || null;
+      u.rate = st.rate || 1;
+      u.pitch = st.pitch || 1;
+
+      // auto voz por arquétipo
+      if(st.autoVoiceArch && window.detectDominantArchInBlock){
+        const arch = detectDominantArchInBlock(text);
+        const meta = (window.ARCHETYPES||[]).find(a=>a.id===arch);
+        if(meta){
+          const voices = speechSynthesis.getVoices();
+          const vv = voices.find(v=>v.name.toLowerCase().includes(meta.voice.toLowerCase()));
+          if(vv) u.voice = vv;
+          if(meta.rate) u.rate = meta.rate;
+          if(meta.pitch) u.pitch = meta.pitch;
+        }
+        if(st.autoThemeArch) applyTheme(archColorThemeKey(arch));
+      }
+
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+      return;
+    }
+    return _speakText ? _speakText(text, opts) : null;
+  };
+
+  // mapeia arquétipo → tema simples
+  function archColorThemeKey(arch){
+    if(!arch) return "nebula";
+    if(arch==="nova") return "nebula";
+    if(arch==="atlas") return "dark";
+    if(arch==="vitalis") return "gold";
+    if(arch==="pulse") return "blue";
+    return "madeira";
+  }
+
+  // ---------- APPS ----------
+  exportAppsBtn.onclick = ()=>{
+    const apps = normalizeApps(loadAppsCache()||DEFAULT_APPS);
+    downloadJson("apps.json", apps);
+  };
+  importAppsBtn.onclick = ()=> appsFile.click();
+  appsFile.onchange = async (e)=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    try{
+      const j = JSON.parse(await f.text());
+      const apps = normalizeApps(j);
+      saveAppsCache(apps);
+      renderApps(apps);
+      addSys?.("✅ apps.json importado ("+apps.length+")");
+    }catch(err){
+      addSys?.("⚠️ apps.json inválido: "+err.message);
+    }finally{ appsFile.value=""; }
+  };
+  syncAppsBtn.onclick = ()=>{
+    syncAppsFromRemote(remoteUrl.value.trim());
+  };
+
+  // ---------- STORAGE ----------
+  dumpLSBtn.onclick = ()=>{
+    const out = {};
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      out[k] = localStorage.getItem(k);
+    }
+    lsOut.textContent = JSON.stringify(out, null, 2);
+  };
+
+  clearLSBtn.onclick = ()=>{
+    // limpa só chaves KOBLLUX para não destruir PWA do sistema
+    const kill = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(/^kobllux_/i.test(k)) kill.push(k);
+    }
+    kill.forEach(k=>localStorage.removeItem(k));
+    lsOut.textContent = "limpo: "+kill.length+" chaves";
+    addSys?.("🧹 StorageSafe limpo ("+kill.length+")");
+  };
+
+  // ---------- LOG MISTICO ----------
+  openLogBtn.onclick = ()=>{
+    const log = loadLogMistico().slice(-50);
+    logOut.textContent = JSON.stringify(log, null, 2);
+  };
+  exportLogBtn.onclick = ()=>{
+    const log = loadLogMistico();
+    downloadJson("logMistico.json", log);
+  };
+
+  // ---------- AUTO‑HEAL ----------
+  autoHealChk.checked = state.autoHeal !== false;
+  autoHealChk.onchange = ()=>{
+    saveDB({autoHeal:autoHealChk.checked});
+  };
+
+  runHealBtn.onclick = ()=>{
+    const apps = normalizeApps(loadAppsCache()||DEFAULT_APPS);
+    let fixed = 0;
+
+    apps.forEach(a=>{
+      if(!a.key){ a.key = makeSafeKey(a.title||a.url); fixed++; }
+      if(!a.icon){ a.icon = "icons/icon-192.png"; fixed++; }
+      if(!a.title){ a.title = a.key; fixed++; }
+    });
+
+    saveAppsCache(apps);
+    renderApps(apps);
+    const msg = fixed?("✅ Auto‑heal: "+fixed+" correções"):"✅ Nada pra curar";
+    healStatus.textContent = msg;
+    addSys?.(msg);
+  };
+
+  // ---------- restore previous selections
+  if(state.theme) themeSelect.value = state.theme;
+  if(state.autoThemeArch) autoThemeArch.checked = true;
+  if(state.autoVoiceArch) autoVoiceArch.checked = true;
+  if(state.remoteUrl) remoteUrl.value = state.remoteUrl;
+
+})();
+
+/* ====================================================================== */
+/* DUAL BODY ENGINE v1                                                    */
+/* ====================================================================== */
+(function(){
+  window.LS = window.LS || {};
+  LS.stacksDB = LS.stacksDB || "kobllux_stacks_v1";
+
+  const dualBody = document.getElementById("dualBody");
+  if(!dualBody) return;
+
+  const tabs = [...dualBody.querySelectorAll(".dbody-tab")];
+  const panels = [...dualBody.querySelectorAll(".dbody-panel")];
+
+  const frame = document.getElementById("dbodyFrame");
+  const previewFrame = document.getElementById("dbodyPreviewFrame");
+  const viewerTitle = document.getElementById("dbodyViewerTitle");
+  const viewerMeta = document.getElementById("dbodyViewerMeta");
+
+  const stacksList = document.getElementById("dbodyStacksList");
+  const editorArea = document.getElementById("dbodyEditorArea");
+  const editorHint = document.getElementById("dbodyEditorHint");
+
+  const btnHome = document.getElementById("dbodyHomeBtn");
+  const btnMin = document.getElementById("dbodyMinBtn");
+  const btnClose = document.getElementById("dbodyCloseBtn");
+  const btnStack = document.getElementById("dbodyStackBtn");
+  const btnOpenExt = document.getElementById("dbodyOpenExtBtn");
+  const btnListen = document.getElementById("dbodyListenBtn");
+
+  const btnSaveLocal = document.getElementById("dbodySaveLocalBtn");
+  const btnToPreview = document.getElementById("dbodyToPreviewBtn");
+  const btnApplyPreview = document.getElementById("dbodyApplyPreviewBtn");
+  const btnBackEditor = document.getElementById("dbodyBackEditorBtn");
+
+  let current = { url:null, title:null, isLocal:false, localKey:null };
+
+  // ---------- show/hide dual body ----------
+  window.openDualBody = function(url, title, opts={}){
+    dualBody.classList.add("show");
+    openTab("viewer");
+    openInDualViewer(url, title, opts);
+  };
+  window.closeDualBody = function(){
+    dualBody.classList.remove("show");
+  };
+  window.minDualBody = function(){
+    dualBody.classList.remove("show");
+  };
+
+  btnClose?.addEventListener("click", ()=>closeDualBody());
+  btnMin?.addEventListener("click", ()=>minDualBody());
+  btnHome?.addEventListener("click", ()=>{ closeDualBody(); window.scrollTo({top:0,behavior:"smooth"}); });
+
+  // ---------- tabs ----------
+  function openTab(name){
+    tabs.forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+    panels.forEach(p=>p.classList.toggle("show", p.dataset.panel===name));
+  }
+  window.openDualTab = openTab;
+  tabs.forEach(t=> t.addEventListener("click", ()=> openTab(t.dataset.tab)));
+
+  // ---------- stacks ----------
+  function loadStacks(){
+    try{ return JSON.parse(localStorage.getItem(LS.stacksDB)||"[]"); }
+    catch{ return []; }
+  }
+  function saveStacks(s){ localStorage.setItem(LS.stacksDB, JSON.stringify(s)); }
+
+  function renderStacks(){
+    const s = loadStacks();
+    stacksList.innerHTML = "";
+    if(!s.length){
+      stacksList.innerHTML = `<div class="dbody-small">Nenhum stack ainda.</div>`;
+      return;
+    }
+    s.slice().reverse().forEach((it,idxRev)=>{
+      const idx = s.length-1-idxRev;
+      const row = document.createElement("div");
+      row.className = "stack-item";
+      row.innerHTML = `
+        <div class="meta">
+          <div class="title">${it.title||it.url}</div>
+          <div class="url">${it.url}</div>
+        </div>
+        <div class="actions">
+          <button class="dbody-btn" data-act="open">Abrir</button>
+          <button class="dbody-btn" data-act="del">Del</button>
+        </div>
+      `;
+      row.querySelector('[data-act="open"]').onclick = ()=>{
+        openTab("viewer");
+        openInDualViewer(it.url, it.title, it.opts||{});
+      };
+      row.querySelector('[data-act="del"]').onclick = ()=>{
+        const arr = loadStacks();
+        arr.splice(idx,1); saveStacks(arr); renderStacks();
+      };
+      stacksList.appendChild(row);
+    });
+  }
+
+  btnStack?.addEventListener("click", ()=>{
+    if(!current.url) return addSys?.("⚠️ Nada aberto pra stack.");
+    const s = loadStacks();
+    s.push({ url:current.url, title:current.title, opts:{isLocal:current.isLocal, localKey:current.localKey} });
+    saveStacks(s);
+    renderStacks();
+    addSys?.("✅ Stack criado.");
+  });
+
+  // ---------- open in viewer ----------
+  function openInDualViewer(url, title, opts={}){
+    current = { url, title, isLocal:!!opts.isLocal, localKey:opts.localKey||null };
+    frame.src = url || "about:blank";
+    viewerTitle.textContent = title || url || "Nenhum app aberto";
+    viewerMeta.textContent = opts.isLocal ? ("#local:"+opts.localKey) : (url||"");
+    renderStacks();
+
+    if(current.isLocal && current.localKey){
+      const files = loadLocalAppFiles();
+      editorArea.value = files[current.localKey] || "";
+      editorHint.textContent = "Editando: #local:"+current.localKey;
+    }else{
+      editorArea.value = "";
+      editorHint.textContent = "Abra um app #local: para editar.";
+    }
+  }
+
+  // expõe para o resto do app
+  window.openInViewer = function(url, title, opts){
+    openDualBody(url, title, opts);
+  };
+
+  btnOpenExt?.addEventListener("click", ()=>{
+    if(!current.url) return;
+    window.open(current.url, "_blank", "noopener,noreferrer");
+  });
+
+  btnListen?.addEventListener("click", ()=> window.readViewerLocal?.());
+
+  // ---------- editor / preview ----------
+  btnToPreview?.addEventListener("click", ()=>{
+    const html = editorArea.value.trim();
+    if(!html){ addSys?.("⚠️ Nada no editor."); return; }
+    const u = openLocalBlob(html);
+    previewFrame.src = u;
+    openTab("preview");
+    setTimeout(()=>URL.revokeObjectURL(u), 60000);
+  });
+
+  btnBackEditor?.addEventListener("click", ()=> openTab("editor"));
+
+  btnSaveLocal?.addEventListener("click", ()=>{
+    if(!current.isLocal || !current.localKey){
+      addSys?.("⚠️ Nenhum local aberto.");
+      return;
+    }
+    const files = loadLocalAppFiles();
+    files[current.localKey] = editorArea.value;
+    saveLocalAppFiles(files);
+    addSys?.("✅ Local salvo: "+current.localKey);
+  });
+
+  btnApplyPreview?.addEventListener("click", ()=>{
+    const html = editorArea.value.trim();
+    if(!html) return;
+    const u = openLocalBlob(html);
+    openTab("viewer");
+    openInDualViewer(u, current.title || "Local Preview", {isLocal:true, localKey:current.localKey});
+    setTimeout(()=>URL.revokeObjectURL(u), 60000);
+  });
+
+  renderStacks();
+})();
+
+</script>
+
+</body>
+</html>
