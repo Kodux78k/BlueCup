@@ -5,11 +5,27 @@
   <title>BlueCup • Infodose Local Agent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 
-  <!-- PWA basics (opcional) -->
-  <meta name="theme-color" content="#050510" id="metaThemeColor"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<!-- PWA no iOS (modo web app) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BlueCup">
 
+  <!-- Manifest do PWA -->
+  <!-- Se o arquivo estiver na raiz, deixa só "manifest.webmanifest" -->
+  <link rel="manifest" href="./manifest.webmanifest">
+
+  <!-- Ícone principal (favicon / atalho) -->
+  <!-- Aqui entra teu ícone 192x192 -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+
+  <!-- Ícone para iOS (pode ser 180x180, mas 192 também funciona bem) -->
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+  <!-- (Opcional) Ícone maior, se tiver 512x512 -->
+  <!-- <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png"> -->
+
+  <!-- (Opcional) Descrição pro SEO -->
+  <meta name="description" content="BlueCup • Hub Infodose rodando como PWA, sempre único, sempre seu.">
   <style>
     /* MOBILE-FIRST VERTICAL HARD-LOCK */
     :root{
