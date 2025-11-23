@@ -3695,7 +3695,7 @@ bootApps();
   // ---------- APPS ----------
   exportAppsBtn.onclick = ()=>{
     const apps = normalizeApps(loadAppsCache()||DEFAULT_APPS);
-    downloadJson("apps.json", apps);
+    downloadJson("./apps/apps.json", apps);
   };
   importAppsBtn.onclick = ()=> appsFile.click();
   appsFile.onchange = async (e)=>{
