@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-br"><head>
+  <meta charset="utf-8">
+  <title>BlueCup • Infodose Local Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- PWA basics (opcional) -->
+  <meta name="theme-color" content="#050510" id="metaThemeColor">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- Se o arquivo estiver na raiz, deixa só "manifest.webmanifest" -->
+  <link rel="manifest" href="https://kodux78k.github.io/BlueCup:manifest.webmanifest">
+
+  <!-- Ícone principal (favicon / atalho) -->
+  <!-- Aqui entra teu ícone 192x192 -->
+  <link rel="icon" type="image/png" sizes="192x192" href="https://kodux78k.github.io/BlueCup/icons/icon-192.png">
+
+  <!-- Ícone para iOS (pode ser 180x180, mas 192 também funciona bem) -->
+  <link rel="apple-touch-icon" href="https://kodux78k.github.io/BlueCup/icons/icon-192.png">
+
+
+  
+<link rel="stylesheet" href="https://kodux78k.github.io/BlueCup/css/main.css"> 
+</head>
+
+<body>
+  <div id="bgLayer" aria-hidden="true"></div>
+  <header>
+    <div class="headrow">
+      <div class="brand">
+        <div class="cup" id="cupBtn" title="Cup/Orb (trocar pela sua cup.png)">☕</div>
+        <div>
+          <div>BlueCup</div>
+          <div class="tiny">Infodose Local • UNO→DUAL Executor</div>
+        </div>
+      </div>
+      <div class="status">
+        <span class="dot" id="localDot"></span>
+        <span id="statusTxt">offline</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- CARD: CHAT -->
+    <!-- CARD: APPS STACK (apps.json) -->
+<div class="card appsCard">
+  <details open="">
+    <summary>
+      <span class="appsSummary">
+        <span class="appsSummary-dot"></span>
+        <span class="appsSummary-title">APPS • STACK JSON</span>
+        <span class="appsSummary-sub">carregar / abrir / adicionar {apps.json}</span>
+      </span>
+    </summary>
+    <div class="content">
+      <div class="appsToolbar">
+        <label class="appsSearchWrap">
+          <span class="appsSearchIcon">⌕</span>
+          <input id="appsSearch" placeholder="buscar apps...">
+        </label>
+        <button id="appsReloadBtn" class="appsReloadBtn" type="button">
+          <span class="appsReloadGlow"></span>
+          Recarregar
+        </button>
+      </div>
+
+      <div id="appsGrid" class="appsGrid"></div>
+
+      <div class="appsFooter tiny" id="appsHint">
+        Importe um <b>apps.json</b> no painel Stacks ou coloque <code>./apps.json</code> na raiz.
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- CARD: APPS LOCAIS (#local:) -->
+<div class="card localAppsCard">
+  <details>
+    <summary>
+      <span class="appsSummary">
+        <span class="appsSummary-dot"></span>
+        <span class="appsSummary-title">APPS • LOCAIS</span>
+        <span class="appsSummary-sub">upload / editar / abrir #local:</span>
+      </span>
+      <span class="chev">▸</span>
+    </summary>
+    <div class="content">
+      <div class="appsToolbar">
+        <div class="btnRow" style="margin:0">
+          <button id="localUploadBtn" class="appBtn primary" type="button">Upload HTML</button>
+          <button id="localNewBtn" class="appBtn" type="button">Novo Local</button>
+          <button id="localExportBtn" class="appBtn" type="button">Exportar Locais</button>
+          <button id="localImportBtn" class="appBtn" type="button">Importar Locais</button>
+        </div>
+        <input id="localUploadInput" type="file" accept=".html,text/html" multiple="" hidden="">
+        <input id="localImportInput" type="file" accept=".json,application/json" hidden="">
+      </div>
+
+      <div id="localAppsGrid" class="appsGrid"></div>
+
+      <div class="appsFooter tiny" id="localAppsHint">
+        HTMLs que você subir aqui viram cards no Hub e abrem como <code>#local:chave</code>.
+      </div>
+    </div>
+  </details>
+</div>
+
+
+
+<div class="card">
+      <details open="">
+        <summary>
+          CHAT
+          <span class="chev">▾</span>
+        </summary>
+        <div class="section">
+
+          <div class="chatBox" id="chatBox"></div>
+
+          <div class="inputRow">
+            <textarea id="chatInput" placeholder="Toque o pulso com intenção..."></textarea>
+
+            <div class="btnRow">
+              
+              <button id="btnDual">⇄ Dual</button>
+              <button id="btnTriade">3·6·9 OFF</button>
+<button class="primary" id="sendBtn">Enviar →</button>
+              <button id="ttsBtn">◎ Ouvir</button>
+              <button id="stackBtn">Stack +</button>
+              <button id="clearBtn">Limpar</button>
+            </div>
+
+            <div class="tiny" id="routeHint">Rota: auto (BlueLocal → OpenRouter → Offline)</div>
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <!-- CARD: TRÍADES -->
+    <div class="card">
+      <details>
+        <summary>
+          TRÍADES &amp; PULSO
+          <span class="chev">▸</span>
+        </summary>
+        <div class="section">
+          <div class="orb" id="orbBtn" title="Gera intenção simbólica"></div>
+          <div class="triadOut" id="triadOut">⚡️⭕️⚡️</div>
+          <button id="genTriadBtn">Gerar Intenção</button>
+        </div>
+      </details>
+    </div>
+
+    <!-- CARD: STACKS -->
+    <div class="card">
+      <details>
+        <summary>
+          STACKS (MD)
+          <span class="chev">▸</span>
+        </summary>
+        <div class="section">
+          <div class="btnRow">
+            <button id="newStackBtn">Nova Stack</button>
+            <button id="exportStacksBtn">Exportar Tudo</button>
+            <button id="importAppsBtn">Importar apps.json</button>
+          </div>
+
+          <div class="stackList" id="stackList"></div>
+        </div>
+      </details>
+    </div>
+
+    <!-- CARD: DEV PANEL -->
+    <div class="card">
+      <details>
+        <summary>
+          DEV PANEL
+          <span class="chev">▸</span>
+        </summary>
+        <div class="section">
+
+          <div class="field">
+            <label>Provider</label>
+            <select id="providerSel">
+              <option value="auto">auto (recomendado)</option>
+              <option value="bluelocal">BlueLocal (http://localhost:4040)</option>
+              <option value="openrouter">OpenRouter (cloud)</option>
+              <option value="offline">Offline (eco)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Modelo (OpenRouter ou local)</label>
+            <input id="modelInp" placeholder="ex: openrouter/auto ou meta-llama/llama-3.1-8b-instruct:free">
+            <div class="tiny">Deixa vazio pra auto escolher.</div>
+          </div>
+
+          <div class="field">
+            <label>Chave OpenRouter (opcional)</label>
+            <input id="keyInp" placeholder="sk-or-...">
+            <div class="tiny">Salvo só no teu device (localStorage).</div>
+          </div>
+
+          <div class="field">
+            <label>System Prompt</label>
+            <textarea id="sysPromptInp"></textarea>
+          </div>
+
+          <div class="btnRow">
+            <button id="saveDevBtn">Salvar Config</button>
+            <button id="resetDevBtn">Reset</button>
+            <button id="pingLocalBtn">Ping BlueBrain</button>
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+  </main>
+
+
+
+
+<!-- KOBLLUX · Vozes Arquétipas + Arquétipos — Patch Inline (FIXED) -->
+
+
+
+
+
+
+
+
+
+
+<!-- =================================================================== -->
+<!-- DEV PANEL MODAL                                                     -->
+<!-- =================================================================== -->
+
+<button class="fab-devpanel" id="devpanelOpenBtn" title="DevPanel" aria-label="DevPanel">
+  <svg class="fab-orb" viewBox="0 0 64 64" aria-hidden="true">
+    <defs>
+      <radialGradient id="fabOrbCore" cx="50%" cy="35%" r="60%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="1"></stop>
+        <stop offset="35%" stop-color="#ff00ff" stop-opacity=".95"></stop>
+        <stop offset="70%" stop-color="#00ffff" stop-opacity=".85"></stop>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0"></stop>
+      </radialGradient>
+      <linearGradient id="fabOrbRing" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ff00ff"></stop>
+        <stop offset="50%" stop-color="#1be4ff"></stop>
+        <stop offset="100%" stop-color="#5cff9d"></stop>
+      </linearGradient>
+    </defs>
+    <circle class="orb-core" cx="32" cy="32" r="18" fill="url(#fabOrbCore)"></circle>
+    <circle class="orb-ring" cx="32" cy="32" r="23" fill="none" stroke="url(#fabOrbRing)" stroke-width="1.5"></circle>
+    <circle class="orb-satellite" cx="48" cy="20" r="3"></circle>
+  </svg>
+</button>
+
+<div class="devpanel-overlay" id="devpanelOverlay" aria-hidden="true">
+  <div class="devpanel" role="dialog" aria-modal="true">
+    <div class="devpanel-head">
+      <div class="devpanel-title">DevPanel ⊙ BlueCup</div>
+      <button class="dbody-btn" id="devpanelCloseBtn" title="Fechar">✕</button>
+    </div>
+    <div class="devpanel-body" id="devpanelBody">
+      
+<section class="db-section" id="dualBrain">
+  <div class="db-head">
+    <div class="db-title">⊙ Dual Brain</div>
+    <div class="db-sub">Centro de Controle · Nebula Pro</div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Tema / Paleta</div>
+    <div class="db-row">
+      <select id="dbThemeSelect">
+        <option value="nebula">Nebula Pro (42°)</option>
+        <option value="madeira">Base Madeira</option>
+        <option value="blue">Blue‑1 (Emoção)</option>
+        <option value="gold">Luxara Gold</option>
+        <option value="dark">Dark Core</option>
+      </select>
+      <button class="btn" id="dbApplyTheme">Aplicar</button>
+    </div>
+    <div class="db-row">
+      <label class="db-check">
+        <input type="checkbox" id="dbAutoThemeArch">
+        Auto‑tema por arquétipo (fala)
+      </label>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Vozes / TTS</div>
+    <div class="db-row">
+      <select id="dbVoiceSelect"></select>
+      <button class="btn" id="dbTestVoice">Testar ◎</button>
+    </div>
+    <div class="db-row">
+      <label>Rate</label>
+      <input id="dbRate" type="range" min="0.6" max="1.6" step="0.02">
+      <span id="dbRateVal"></span>
+    </div>
+    <div class="db-row">
+      <label>Pitch</label>
+      <input id="dbPitch" type="range" min="0.6" max="1.6" step="0.02">
+      <span id="dbPitchVal"></span>
+    </div>
+    <div class="db-row">
+      <label class="db-check">
+        <input type="checkbox" id="dbAutoVoiceArch">
+        Auto‑voz por arquétipo (bloco)
+      </label>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Apps · Estado &amp; Sync</div>
+    <div class="db-row">
+      <button class="btn" id="dbExportApps">Exportar apps.json</button>
+      <button class="btn" id="dbImportApps">Importar apps.json</button>
+      <input id="dbAppsFile" type="file" accept="application/json,.json" hidden="">
+    </div>
+    <div class="db-row">
+      <input id="dbRemoteUrl" placeholder="URL raw apps.json (GitHub/Nos.S°lar)">
+      <button class="btn" id="dbSyncApps">Sync</button>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">StorageSafe</div>
+    <div class="db-row">
+      <button class="btn" id="dbDumpLS">Dump LocalStorage</button>
+      <button class="btn warn" id="dbClearLS">Limpar (seguro)</button>
+    </div>
+    <pre class="db-pre" id="dbLsOut"></pre>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Log Mistico</div>
+    <div class="db-row">
+      <button class="btn" id="dbOpenLog">Ver últimos 50</button>
+      <button class="btn" id="dbExportLog">Exportar Log</button>
+    </div>
+    <pre class="db-pre" id="dbLogOut"></pre>
+  </div>
+
+  <div class="db-card">
+    <div class="db-card-title">Fallback / Auto‑Heal</div>
+    <div class="db-row">
+      <label class="db-check">
+        <input type="checkbox" id="dbAutoHeal" checked="">
+        Auto‑heal ao abrir app/aba quebrada
+      </label>
+    </div>
+    <div class="db-row">
+      <button class="btn" id="dbRunHeal">Rodar cura agora</button>
+    </div>
+    <div class="db-small" id="dbHealStatus"></div>
+  </div>
+</section>
+
+      <!-- Icons Lab entra via JS -->
+    </div>
+  </div>
+</div>
+
+
+<!-- =================================================================== -->
+<!-- DUAL BODY · Viewer + Stacks + Editor + Preview                        -->
+<!-- =================================================================== -->
+<section id="dualBody" class="dual-body">
+  <header class="dbody-bar">
+    <div class="dbody-title">◐ Dual Body</div>
+    <div class="dbody-actions">
+      <button class="dbody-btn" id="dbodyHomeBtn" title="Voltar para Home">⌂</button>
+      <button class="dbody-btn" id="dbodyMinBtn" title="Minimizar Viewer">▁</button>
+      <button class="dbody-btn" id="dbodyCloseBtn" title="Fechar Viewer">✕</button>
+    </div>
+  </header>
+
+  <nav class="dbody-tabs" role="tablist">
+    <button class="dbody-tab active" data-tab="viewer">Viewer</button>
+    <button class="dbody-tab" data-tab="stacks">Stacks</button>
+    <button class="dbody-tab" data-tab="editor">Editor</button>
+    <button class="dbody-tab" data-tab="preview">Preview</button>
+  </nav>
+
+  <div class="dbody-panels">
+    <section class="dbody-panel show" data-panel="viewer">
+      <div class="dbody-viewer-head">
+        <div class="dbody-viewer-title" id="dbodyViewerTitle">Nenhum app aberto</div>
+        <div class="dbody-viewer-meta" id="dbodyViewerMeta"></div>
+      </div>
+
+      <div class="dbody-frame-wrap">
+        <iframe id="dbodyFrame" class="dbody-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      </div>
+
+      <div class="dbody-viewer-foot">
+        <button class="dbody-btn wide" id="dbodyStackBtn">+ Stack</button>
+        <button class="dbody-btn wide" id="dbodyOpenExtBtn">↗ Externo</button>
+        <button class="dbody-btn wide" id="dbodyListenBtn">◎ Ouvir local</button>
+      </div>
+    </section>
+
+    <section class="dbody-panel" data-panel="stacks">
+      <div class="dbody-card">
+        <div class="dbody-card-title">Stacks Abertos</div>
+        <div id="dbodyStacksList" class="dbody-stacks"></div>
+        <div class="dbody-small">Stacks são respirações: abre • pausa • volta.</div>
+      </div>
+    </section>
+
+    <section class="dbody-panel" data-panel="editor">
+      <div class="dbody-card">
+        <div class="dbody-card-title">Editor Local</div>
+        <textarea id="dbodyEditorArea" class="dbody-editor" placeholder="Aqui você edita o HTML do app local."></textarea>
+        <div class="dbody-editor-actions">
+          <button class="dbody-btn wide" id="dbodySaveLocalBtn">Salvar Local</button>
+          <button class="dbody-btn wide" id="dbodyToPreviewBtn">→ Preview</button>
+        </div>
+        <div class="dbody-small" id="dbodyEditorHint">Abra um app #local: para editar.</div>
+      </div>
+    </section>
+
+    <section class="dbody-panel" data-panel="preview">
+      <div class="dbody-card">
+        <div class="dbody-card-title">Preview do Editor</div>
+        <div class="dbody-frame-wrap">
+          <iframe id="dbodyPreviewFrame" class="dbody-frame"></iframe>
+        </div>
+        <div class="dbody-viewer-foot">
+          <button class="dbody-btn wide" id="dbodyApplyPreviewBtn">Aplicar no Viewer</button>
+          <button class="dbody-btn wide" id="dbodyBackEditorBtn">← Editor</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+
+
+
+<!-- =========================================================
+     BC • VISUALKERNEL v3 INFODOSE SAFE LITE
+     - Fundo dinâmico por arquétipo/modo (UNO/DUAL/TRINITY/SOLAR/NEBULA)
+     - Versão LITE: só background + hooks de mensagem
+
+
+<script type="module" src="./js/main.js"></script>
+
+========================================================= -->
+
+
+
+<script src="https://kodux78k.github.io/BlueCup/js/modules/inline-0.js"></script>
+
+<script src="https://kodux78k.github.io/BlueCup/js/modules/inline-1.js"></script>
+
+<script src="https://kodux78k.github.io/BlueCup/js/modules/inline-2.js"></script>
+
+<script src="https://kodux78k.github.io/BlueCup/js/modules/inline-3.js"></script>
+
+<script src="https://kodux78k.github.io/BlueCup/js/modules/inline-4.js"></script>
+
+<script src="https://kodux78k.github.io/BlueCup/js/modules/inline-5.js"></script>
+
+
+<script src="https://kodux78k.github.io/BlueCup/js/modules/inline-6.js"></script>
+
+</body></html>
