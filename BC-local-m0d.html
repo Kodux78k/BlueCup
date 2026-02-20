@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br"><head>
+  <meta charset="utf-8">
+  <title>BlueCup • 78KQWAN • Stacks Refatorado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- PWA básicos (se quiser, já está pronto pra manifest + SW) -->
+  <meta name="theme-color" content="#050510" id="metaThemeColor">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  
+<link rel="stylesheet" href="https://kodux78k.github.io/BlueCup/css/mainBCL.css"></head>
+<body>
+  <header>
+    <div class="headrow">
+      <div class="brand">
+        <div class="cup" title="BlueCup • 78KQWAN">☕</div>
+        <div>
+          <div>BlueCup · 78KQWAN</div>
+          <div class="status">
+            <span class="dot on"></span>
+            <span>Local Agent • Nebula Pro · Base Madeira</span>
+          </div>
+        </div>
+      </div>
+      <div class="status">
+        <span>Stacks / Cards refatorados</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- CARD 1 · CHAT LOCAL -->
+    <article class="card">
+      <details open="">
+        <summary>
+          <span>Chat · BlueCup Local</span>
+          <span class="chev">▾</span>
+        </summary>
+        <div class="content">
+          <div class="section">
+            <div class="chatBox" id="chatLog">
+              <div class="msg sys">
+                BlueCup pronto. Este chat é local, só UI – você pluga a API da IA quando quiser.
+              </div>
+            </div>
+            <div class="inputRow">
+              <textarea id="chatInput" placeholder="Digite aqui para testar o fluxo de mensagens local..."></textarea>
+              <div class="btnRow">
+                <button class="primary" id="btnSend">Enviar</button>
+                <button id="btnClear">Limpar</button>
+                <button id="btnDemo">Demo de resposta</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </article>
+
+    <!-- CARD 2 · STACKS / APPS -->
+    <article class="card appsCard">
+      <details open="">
+        <summary>
+          <span>Stacks · Apps / Cenas</span>
+          <span class="chev">▾</span>
+        </summary>
+        <div class="content">
+          <div class="section">
+            <div class="appsToolbar">
+              <div class="appsSearchWrap">
+                <span class="appsSearchIcon">🔍</span>
+                <input id="appsSearch" type="search" placeholder="Filtrar por nome, tag, arquétipo..." autocomplete="off">
+              </div>
+              <button class="appsReloadBtn" id="appsReload">
+                <span class="appsReloadGlow"></span>
+                Reload Stacks
+              </button>
+            </div>
+
+            <div class="appsGrid" id="appsGrid"></div>
+          </div>
+        </div>
+      </details>
+    </article>
+  </main>
+
+  <!-- FAB DEV -->
+  <button class="fab-devpanel" id="fabDev" title="Dual Brain · Stacks Inspector">
+    ⚙
+  </button>
+
+  <!-- DEV PANEL LIGHT -->
+  <div class="devpanel-overlay" id="devOverlay">
+    <div class="devpanel">
+      <div class="devpanel-head">
+        <div class="devpanel-title">Dual Brain · Stacks Inspector</div>
+        <button class="btn" id="btnCloseDev">Fechar</button>
+      </div>
+      <div class="devpanel-body">
+        <p>Último stack clicado (para debug rápido):</p>
+        <pre id="devStackJson">Nenhum stack selecionado ainda.</pre>
+      </div>
+      <div class="devpanel-foot">
+        <button class="btn" id="btnCopyDev">Copiar JSON</button>
+        <button class="btn" id="btnClearDev">Limpar</button>
+      </div>
+    </div>
+  </div>
+
+  
+
+<script src="https://kodux78k.github.io/BlueCup/js/M0D/BC-local.js"></script></body></html>
